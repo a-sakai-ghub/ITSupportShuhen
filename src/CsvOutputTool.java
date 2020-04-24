@@ -8,7 +8,7 @@ public class CsvOutputTool {
 	/**
 	 * 期待値算出メソッド。
 	 */
-	public static void ExpectCalculate() {
+	public static void expectCalculate(String input1, String input2) {
 
 	}
 }
