@@ -15,4 +15,8 @@ public class Util {
 		return returnData;
 	}
 
+	public String sample(String str) {
+		return null;
+	}
+
 }
