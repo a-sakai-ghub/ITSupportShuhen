@@ -31,8 +31,8 @@ public class Util {
 
 		String returnData = "";
 
-		SimpleDateFormat format1 = new SimpleDateFormat("yyyyMMdd");
-		SimpleDateFormat format2 = new SimpleDateFormat("yyyy/MM/dd");
+		SimpleDateFormat format1 = new SimpleDateFormat("yyyy/MM/dd");
+		SimpleDateFormat format2 = new SimpleDateFormat("yyyyMMdd");
 		returnData = format1.format(format2.parse(targetData));
 
 		return returnData;
@@ -48,8 +48,8 @@ public class Util {
 
 		String returnData = "";
 
-		SimpleDateFormat format1 = new SimpleDateFormat("yyyy/MM/dd");
-		SimpleDateFormat format2 = new SimpleDateFormat("yyyyMMdd");
+		SimpleDateFormat format1 = new SimpleDateFormat("yyyyMMdd");
+		SimpleDateFormat format2 = new SimpleDateFormat("yyyy/MM/dd");
 		returnData = format1.format(format2.parse(targetData));
 
 		return returnData;
@@ -97,6 +97,32 @@ public class Util {
 
 		Transliterator transliterator = Transliterator.getInstance("Fullwidth-Halfwidth");
 		returnData = transliterator.transliterate(targetData);
+
+		return returnData;
+	}
+
+	/**
+	 * 桁切をするメソッド
+	 * targetData 編集対象文字列
+	 * digit 編集後桁数
+	 * direction 桁切方向（先頭削除　or 末尾削除）
+	 * @return returnData 編集後文字列
+	 */
+	public String cutDigit(String targetData, int digit, String direction) {
+
+		String returnData = "";
+		returnData = targetData;
+		int count = targetData.length();
+
+		if (count > digit) {
+			//先頭を削除の場合
+			if (direction.equals(Const.LEAD_STRING)) {
+				returnData = targetData.substring(count-digit,count);
+			//末尾を削除の場合
+			}else if (direction.equals(Const.END_STRING)) {
+				returnData = targetData.substring(0, digit);
+			}
+		}
 
 		return returnData;
 	}
