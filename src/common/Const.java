@@ -9,6 +9,12 @@ public class Const {
 	/* ツール区分：CSV出力 */
 	public static final String csvOutput = "2";
 
+	/* ハイフン */
+	public static final String HYPHEN = "-";
+
+	/* 空文字 */
+	public static final String EMPTY_STRING = "";
+
 
 
 
