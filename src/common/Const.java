@@ -15,6 +15,12 @@ public class Const {
 	/* 空文字 */
 	public static final String EMPTY_STRING = "";
 
+	/* 先頭 */
+	public static final String LEAD_STRING = "lead";
+
+	/* 末尾 */
+	public static final String END_STRING = "end";
+
 
 
 
