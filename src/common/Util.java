@@ -1,14 +1,16 @@
 package common;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+
+import com.ibm.icu.text.Transliterator;
 
 public class Util {
 
-
-
-
 	/**
 	 * ハイフンを除去するメソッド
+	 * targetData 編集対象文字列
+	 * @return returnData 編集後文字列
 	 */
 	public String removeHyphen(String targetData) {
 
@@ -20,37 +22,47 @@ public class Util {
 	}
 
 	/**
-	 * スラッシュを付与するメソッド
-	 * yyyyMMdd　→　yyyy/MM/dd
+	 * スラッシュを付与するメソッド（yyyyMMdd　→　yyyy/MM/dd）
+	 * targetData 編集対象文字列
+	 * @throws ParseException
+	 * @return returnData 編集後文字列
 	 */
-	public String grantSlash(String targetData) {
+	public String grantSlash(String targetData) throws ParseException {
 
 		String returnData = "";
 
-		SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd");
-		returnData = format.format(targetData);
+		SimpleDateFormat format1 = new SimpleDateFormat("yyyyMMdd");
+		SimpleDateFormat format2 = new SimpleDateFormat("yyyy/MM/dd");
+		returnData = format1.format(format2.parse(targetData));
 
 		return returnData;
 	}
 
 	/**
-	 * スラッシュを削除するメソッド
-	 * yyyy/MM/dd → yyyyMMdd
+	 * スラッシュを削除するメソッド（yyyy/MM/dd → yyyyMMdd）
+	 * targetData 編集対象文字列
+	 * @throws ParseException
+	 * @return returnData 編集後文字列
 	 */
-	public String removeSlash(String targetData) {
+	public String removeSlash(String targetData) throws ParseException {
 
 		String returnData = "";
 
-		SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
-        returnData = format.format(targetData);
+		SimpleDateFormat format1 = new SimpleDateFormat("yyyy/MM/dd");
+		SimpleDateFormat format2 = new SimpleDateFormat("yyyyMMdd");
+		returnData = format1.format(format2.parse(targetData));
 
 		return returnData;
 	}
 
 	/**
 	 * 文字列を結合するメソッド
+	 * targetData1 結合するデータ1
+	 * targetData2 結合するデータ2
+	 * connection 接続文字
+	 * @return returnData 編集後文字列
 	 */
-	public String sample(String targetData1, String targetData2, String connection) {
+	public String unionData(String targetData1, String targetData2, String connection) {
 
 		String returnData = "";
 
@@ -58,5 +70,36 @@ public class Util {
 
 		return returnData;
 	}
+
+	/**
+	 * 全角変換をするメソッド（半角文字 →　全角文字）
+	 * targetData 編集対象文字列
+	 * @return returnData 編集後文字列
+	 */
+	public String changeFullWidth(String targetData) {
+
+		String returnData = "";
+
+		Transliterator transliterator = Transliterator.getInstance("Halfwidth-Fullwidth");
+		returnData = transliterator.transliterate(targetData);
+
+		return returnData;
+	}
+
+	/**
+	 * 半角変換をするメソッド（全角文字 →　半角文字）
+	 * targetData 編集対象文字列
+	 * @return returnData 編集後文字列
+	 */
+	public String changeHalfWidth(String targetData) {
+
+		String returnData = "";
+
+		Transliterator transliterator = Transliterator.getInstance("Fullwidth-Halfwidth");
+		returnData = transliterator.transliterate(targetData);
+
+		return returnData;
+	}
+
 
 }
