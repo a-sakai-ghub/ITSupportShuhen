@@ -15,10 +15,10 @@ public class Const {
 	/* 空文字 */
 	public static final String EMPTY_STRING = "";
 
-	/* yyyyMMdd形式日付 */
+	/* yyyyMMdd形式の日付 */
 	public static final String YYYYMMDD = "yyyyMMdd";
 
-	/* yyyy/MM/dd形式日付 */
+	/* yyyy/MM/dd形式の日付 */
 	public static final String SLASH_YYYYMMDD = "yyyy/MM/dd";
 
 	/* 半角から全角 */
