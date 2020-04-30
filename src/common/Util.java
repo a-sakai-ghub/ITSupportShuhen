@@ -31,8 +31,8 @@ public class Util {
 
 		String returnData = "";
 
-		SimpleDateFormat format1 = new SimpleDateFormat("yyyy/MM/dd");
-		SimpleDateFormat format2 = new SimpleDateFormat("yyyyMMdd");
+		SimpleDateFormat format1 = new SimpleDateFormat(Const.SLASH_YYYYMMDD);
+		SimpleDateFormat format2 = new SimpleDateFormat(Const.YYYYMMDD);
 		returnData = format1.format(format2.parse(targetData));
 
 		return returnData;
@@ -48,8 +48,8 @@ public class Util {
 
 		String returnData = "";
 
-		SimpleDateFormat format1 = new SimpleDateFormat("yyyyMMdd");
-		SimpleDateFormat format2 = new SimpleDateFormat("yyyy/MM/dd");
+		SimpleDateFormat format1 = new SimpleDateFormat(Const.YYYYMMDD);
+		SimpleDateFormat format2 = new SimpleDateFormat(Const.SLASH_YYYYMMDD);
 		returnData = format1.format(format2.parse(targetData));
 
 		return returnData;
@@ -57,16 +57,20 @@ public class Util {
 
 	/**
 	 * 文字列を結合するメソッド
-	 * targetData1 結合するデータ1
-	 * targetData2 結合するデータ2
+	 * targetData 結合するデータ配列
+	 * count 結合するデータ数
 	 * connection 接続文字
 	 * @return returnData 編集後文字列
 	 */
-	public String unionData(String targetData1, String targetData2, String connection) {
+	public String unionData(String[] targetData, int count, String connection) {
 
 		String returnData = "";
 
-		returnData = targetData1 + connection + targetData2;
+		for (int i = 0; i < count - 1; i++) {
+			returnData = returnData + targetData[i] + connection;
+		}
+
+		returnData = returnData + targetData[count - 1];
 
 		return returnData;
 	}
@@ -80,7 +84,7 @@ public class Util {
 
 		String returnData = "";
 
-		Transliterator transliterator = Transliterator.getInstance("Halfwidth-Fullwidth");
+		Transliterator transliterator = Transliterator.getInstance(Const.HALF_FULL);
 		returnData = transliterator.transliterate(targetData);
 
 		return returnData;
@@ -95,7 +99,7 @@ public class Util {
 
 		String returnData = "";
 
-		Transliterator transliterator = Transliterator.getInstance("Fullwidth-Halfwidth");
+		Transliterator transliterator = Transliterator.getInstance(Const.FULL_HALF);
 		returnData = transliterator.transliterate(targetData);
 
 		return returnData;
@@ -114,10 +118,11 @@ public class Util {
 		returnData = targetData;
 		int count = targetData.length();
 
+		//最長文字列よりも多い場合のみ処理を実施する
 		if (count > digit) {
 			//先頭を削除の場合
 			if (direction.equals(Const.LEAD_STRING)) {
-				returnData = targetData.substring(count-digit,count);
+				returnData = targetData.substring(count - digit, count);
 			//末尾を削除の場合
 			}else if (direction.equals(Const.END_STRING)) {
 				returnData = targetData.substring(0, digit);
@@ -127,5 +132,10 @@ public class Util {
 		return returnData;
 	}
 
+	//コード変換(東西変換)
+	//和名変換
+	//記事欄編集
+	//修正箇所
+	//有無系
 
 }
