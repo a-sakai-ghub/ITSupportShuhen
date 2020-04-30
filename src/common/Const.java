@@ -15,6 +15,24 @@ public class Const {
 	/* 空文字 */
 	public static final String EMPTY_STRING = "";
 
+	/* yyyyMMdd形式の日付 */
+	public static final String YYYYMMDD = "yyyyMMdd";
+
+	/* yyyy/MM/dd形式の日付 */
+	public static final String SLASH_YYYYMMDD = "yyyy/MM/dd";
+
+	/* 半角から全角 */
+	public static final String HALF_FULL = "Halfwidth-Fullwidth";
+
+	/* 全角から半角 */
+	public static final String FULL_HALF = "Fullwidth-Halfwidth";
+
+	/* 先頭 */
+	public static final String LEAD_STRING = "lead";
+
+	/* 末尾 */
+	public static final String END_STRING = "end";
+
 
 
 
