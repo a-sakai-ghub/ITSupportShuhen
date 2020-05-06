@@ -25,6 +25,8 @@ public class Const {
 	public static final String END_STRING = "end";
 
 
+	/* SO外業務反映ツール：期待値ファイル */
+	public static final String SOGAI_EXPECTED_FILE = "SO外業務期待値ファイル.xlsx";
 
 
 
