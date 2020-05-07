@@ -36,6 +36,14 @@ public class Const {
 	/* 末尾 */
 	public static final String END_STRING = "end";
 
+	/* コロン */
+	public static final String COLON = "：";
+
+	/* 全角スペース */
+	public static final String FULLWIDTH_SPACE = "　";
+
+	/* 四角 */
+	public static final String SQUARE = "■";
 
 	/* SO外業務反映ツール：期待値ファイル */
 	public static final String SOGAI_EXPECTED_FILE = "SO外業務期待値ファイル.xlsx";
