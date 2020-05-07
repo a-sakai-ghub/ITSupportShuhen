@@ -221,7 +221,7 @@ public class CsvOutputTool {
 	 * @param soNum 統合SO番号
 	 * @param propMap プロパティ情報Map
 	 * @param d テーブルリストの○番目
-	 * @return
+	 * @return DB取得データ
 	 */
 	private static String getDbRecord(Sheet dbSheet, String soNum, Map<String,String> propMap, int d) {
 
