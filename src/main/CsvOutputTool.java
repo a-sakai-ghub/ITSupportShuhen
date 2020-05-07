@@ -76,39 +76,28 @@ public class CsvOutputTool {
 	 * @param input1 DB情報
 	 * @param input2 試験結果CSV情報
 	 */
-		public void expectCalculate(String input1, String input2) {
+	public void expectCalculate(String input1, String input2) {
 
-//	public static void main(String[] args) {
+		//	public static void main(String[] args) {
 		/**
 		 * 任意の値を設定
 		 */
 		//DB貼り付け情報（CSV出力用、工事情報(制御)、工事情報(詳細)、工事情報(詳細2)の4シートが記載されたファイル）
-		input1 = "input1/CSV出力ツール用INPUT1.xlsx";
+		input1 = "input1\\CSV出力ツール用INPUT1.xlsx";
 		//CSV貼り付け情報（試験結果のCSVの情報の1シート）
-		input2 = "input2/CSV出力ツール用INPUT2.xlsx";
+		input2= "input2\\CSV出力ツール用INPUT2.xlsx";
 
 		//「期待値ファイル」のパスを指定
-		String outputDir = "C:\\Sample\\";
+		String outDir = "C:\\Sample\\";
 
 		// 現在日時を取得
 		Date date = new Date();
-		// 表示形式を指定
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
 		String nowTime = sdf.format(date);
-		File expectFile = new File(outputDir + "期待値_" + nowTime + ".xlsx");
+		//期待値ファイルを作成
+		File expectFile = new File(outDir + "期待値_" + nowTime + ".xlsx");
 
 		try {
-			// Input1(DB情報)とInput2(試験結果CSV情報)を取得
-			Workbook wb1 = WorkbookFactory.create(new FileInputStream(input1));
-			Workbook wb2 = WorkbookFactory.create(new FileInputStream(input2));
-			Sheet input2Sheet = wb2.getSheetAt(0);
-			Row input2Row = input2Sheet.getRow(0);
-
-			//	項目名リストを定義
-			List <String> headerList = new ArrayList<>();
-			//統合SO番号リストを定義
-			List <String> soList = new ArrayList<>();
-
 			//期待値を出力するファイルを作成
 			FileOutputStream out =  new FileOutputStream(expectFile);
 			XSSFWorkbook wbExpect = new XSSFWorkbook();
@@ -119,8 +108,18 @@ public class CsvOutputTool {
 			textStyle.setDataFormat(dataFormat.getFormat("text"));
 
 			//期待値ファイルのシートを作成
-			wbExpect.createSheet("CSV出力_期待値");
-			Sheet expectSheet = wbExpect.getSheetAt(0);
+			Sheet expectSheet = wbExpect.createSheet("CSV出力_期待値");
+
+			// Input1(DB情報)とInput2(試験結果CSV情報)を取得
+			Workbook wb1 = WorkbookFactory.create(new FileInputStream(input1));
+			Workbook wb2 = WorkbookFactory.create(new FileInputStream(input2));
+			Sheet input2Sheet = wb2.getSheetAt(0);
+			Row input2Row = input2Sheet.getRow(0);
+
+			//	項目名リストを定義
+			List <String> headerList = new ArrayList<>();
+			//統合SO番号リストを定義
+			List <String> soList = new ArrayList<>();
 
 			Row expectRow = expectSheet.getRow(0);
 			expectRow =expectSheet.createRow(0);
@@ -251,6 +250,7 @@ public class CsvOutputTool {
 
 			//DBMapから、カラムIDをキーに期待値を算出
 			targetValue =  dbMap.get(valueList[d]);
+			break;
 		}
 
 		return targetValue;
@@ -326,65 +326,68 @@ public class CsvOutputTool {
 	 * @return 期待値（編集後値）
 	 * @throws ParseException
 	 */
-	private static String editValue(List<String> valueList, Map <String, String>propMap ) throws ParseException {
+	private static String editValue(List<String> valueList, Map <String, String>propMap) throws ParseException {
 
 		String[] editValues = new String [valueList.size()];
 		String value = "";
 		int i = 0;
 
+		//DBから取得した値が1つではない場合、配列に格納する。(文字列結合用)
 		if( valueList.size() != 1 ) {
 			for( i = 0 ; i < valueList.size(); i++ ) {
 				editValues[i] = valueList.get(i);
 			}
-		}else {
+		}else{
 			value = valueList.get(0);
 		}
 
-		//編集後の値
-		String editedValue = value;
+		//編集後の値(期待値)
+		String expectValue = value;
 
 		//プロパティファイルから編集方法情報を取得する。
 		String editType = propMap.get(MAPKEY_EDIT_TYPE);
+		//プロパティファイルMapから、その他の情報を取得する。（桁切り桁数、コード通番等）
 		String editOtherInfo = propMap.get(MAPKEY_OTHER_INFO);
+
 		Util util = new Util();
 
 		//項目編集なし
 		if( editType.equals(EDIT_TYPE_NOTHING) ) {
-			editedValue = value;
+			expectValue = value;
 		}
 		//スラッシュ除去
 		if( editType.equals(EDIT_TYPE_REMOVE_SLASH)) {
-			editedValue = util.removeSlash(value);
+			expectValue = util.removeSlash(value);
 		}
 		//ハイフン除去
 		if( editType.equals(EDIT_TYPE_REMOVE_HYPHEN)) {
-			editedValue = util.removeHyphen(value);
+			expectValue = util.removeHyphen(value);
 		}
 		//文字列結合
 		if( editType.equals(EDIT_TYPE_UNION_DATA)) {
-			editedValue = util.unionData(editValues, Integer.parseInt(editOtherInfo), Const.EMPTY_STRING);
+			expectValue = util.unionData(editValues, editValues.length, Const.EMPTY_STRING);
 		}
 		//全角→半角変換
 		if( editType.equals(EDIT_TYPE_CHANGE_HALF_WIDTH)) {
-			editedValue = util.changeHalfWidth(value);
+			expectValue = util.changeHalfWidth(value);
 		}
 		//桁切り
 		if( editType.equals(EDIT_TYPE_CUT_DIGIT)) {
-			editedValue = util.cutDigit(value,  Integer.parseInt(editOtherInfo), Const.END_STRING);
+			expectValue = util.cutDigit(value,  Integer.parseInt(editOtherInfo), Const.END_STRING);
 		}
 		//コード変換(東コード→西コード)
 		if( editType.equals(EDIT_TYPE_CHANGE_EAST_TO_WEST_CODE) ) {
-			editedValue = util.changeEastToWestCode(editOtherInfo, value);
+			expectValue = util.changeEastToWestCode(editOtherInfo, value);
 		}
 		//コード変換(東コード→西コード→西和名)
 		if( editType.equals(EDIT_TYPE_CHANGE_EAST_TO_WEST_CODE_TO_JAPANESE) ) {
-			editedValue = util.changeCodeToJapanese(editOtherInfo, util.changeEastToWestCode(editOtherInfo, value));
+			expectValue = util.changeCodeToJapanese(editOtherInfo, util.changeEastToWestCode(editOtherInfo, value));
 		}
 		//コード変換(西コード→西和名)
 		if( editType.equals(EDIT_TYPE_CHANGE_CODE_TO_JAPANESE) ){
-			editedValue = util.changeCodeToJapanese(editOtherInfo, value);
+			expectValue = util.changeCodeToJapanese(editOtherInfo, value);
 		}
-		return editedValue;
+		return expectValue;
 	}
 
 }
