@@ -74,21 +74,20 @@ public class CsvOutputTool {
 	 * @param input2 試験結果CSV情報
 	 */
 		public void expectCalculate(String input1, String input2) {
-
 		/**
 		 * 任意の値を設定
 		 */
 		//DB貼り付け情報（CSV出力用、工事情報(制御)、工事情報(詳細)、工事情報(詳細2)の4シートが記載されたファイル）
-		input1 = "○○.xlsx";
+		input1 = "";
 		//CSV貼り付け情報（試験結果のCSVの情報の1シート）
-		input2 = "△△.xlsx";
+		input2 = "";
 
 		//「期待値ファイル」のパスを指定
-		String outputDir = "C:\\××\\";
+		String outputDir = "";
 		// 現在日時を取得
 		Date date = new Date();
 		// 表示形式を指定
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyymmddHHmmss");
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
 		String nowTime = sdf.format(date);
 		File expectFile = new File(outputDir + "期待値_" + nowTime + ".xlsx");
 
@@ -96,9 +95,7 @@ public class CsvOutputTool {
 			// Input1(DB情報)とInput2(試験結果CSV情報)を取得
 			Workbook wb1 = WorkbookFactory.create(new FileInputStream(input1));
 			Workbook wb2 = WorkbookFactory.create(new FileInputStream(input2));
-			//1シート目
 			Sheet input2Sheet = wb2.getSheetAt(0);
-			//1行目
 			Row input2Row = input2Sheet.getRow(0);
 
 			//	項目名リストを定義
@@ -118,12 +115,11 @@ public class CsvOutputTool {
 			wbExpect.createSheet("CSV出力_期待値");
 			Sheet expectSheet = wbExpect.getSheetAt(0);
 
-			//期待値シートの1行目を指定
 			Row expectRow = expectSheet.getRow(0);
 			expectRow =expectSheet.createRow(0);
 			Cell expectItemCell = null;
 
-			for (int colIdx = 0;colIdx <= input2Row.getLastCellNum(); colIdx++) {
+			for( int colIdx = 0;colIdx <= input2Row.getLastCellNum(); colIdx++ ) {
 				Cell input2ItemCell = input2Row.getCell(colIdx);
 
 				if(input2ItemCell == null) {
@@ -142,23 +138,25 @@ public class CsvOutputTool {
 				if(String.valueOf(input2ItemCell).equals( "統合SO番号" )) {
 
 					//表示されている統合SO番号の最終列までループ
-					for (int rowIdx = 1; rowIdx <= input2Sheet.getLastRowNum(); rowIdx++) {
+					for(int rowIdx = 1; rowIdx <= input2Sheet.getLastRowNum(); rowIdx++ ) {
 
-						Cell soCell = input2Sheet.getRow(rowIdx).getCell(colIdx);
 						//統合SO番号リストに統合SO番号を格納
-						soList.add(String.valueOf(soCell));
+						soList.add(String.valueOf(input2Sheet.getRow(rowIdx).getCell(colIdx)));
 					}
 				}
 			}
 
 			// CSV情報から取得した統合SO番号分ループ
-			for (int i=0; i < soList.size(); i++){
-				//期待値シートの行を指定（＝INPUT2のCSV情報と同一の行）
+			for( int i=0; i < soList.size(); i++ ){
+
+				//SO番号を取得
+				String targetSoNum = soList.get(i);
+				//期待値シートの行を作成（＝INPUT2のCSV情報と同一の行）
 				expectRow = expectSheet.getRow(i + 1);
-				expectRow =expectSheet.createRow(i + 1);
+				expectRow = expectSheet.createRow(i + 1);
 
 				//試験結果CSV情報から取得した、CSV項目名リストの項目ごとにループ
-				for(int h = 0 ; h < headerList.size();h++) {
+				for( int h = 0 ; h < headerList.size();h++ ) {
 
 					//項目名を取得
 					String headerName = headerList.get(h);
@@ -166,58 +164,91 @@ public class CsvOutputTool {
 					//項目名からプロパティファイルの情報を取得する。
 					Map<String,String> propMap = getProp(headerName);
 
-					if(! headerName.equals(propMap.get(MAPKEY_CSV_ITEM_NAME))) {
+					if( ! headerName.equals(propMap.get(MAPKEY_CSV_ITEM_NAME)) ) {
 						continue;
 					}
 
-					//プロパティファイルのテーブル情報から、参照先シート名を取得。
-					Sheet dbSheet = wb1.getSheet(getSheetName(propMap));
+					String[] dbList = getDbList(propMap);
 
-					//DBシートの1列目から、統合SO番号の数分ループ
-					for (int rowDbIdx = 0; rowDbIdx <= dbSheet.getLastRowNum(); rowDbIdx++) {
-						Cell dbSoCell = dbSheet.getRow(rowDbIdx).getCell(0);
+					List<String> targetValues = new ArrayList<>();
 
-						//DBシートの1列目の統合SO番号とCSVの統合SO番号が一致しないものは排除
-						if(! String.valueOf(dbSoCell).equals( soList.get(i) )) {
-							continue;
-						}
+					//取得元DBの数分ループ
+					for(int d = 0; d < dbList.length; d++) {
 
-						Map <String, String> dbMap = new HashMap<>();
+						String dbName =dbList[d];
 
-						//DBシートの1行目
-						Row idRow = dbSheet.getRow(0);
+						//プロパティファイルのテーブル情報から、参照先シート名を取得。
+						Sheet dbSheet = wb1.getSheet(getSheetName(dbName));
 
-						//DBシートの1行目カラムIDの数分ループ
-						for (int colDbIdx = 0;colDbIdx < idRow.getLastCellNum(); colDbIdx++) {
-							//DBシートの対象の行をMapに格納
-							dbMap.put(String.valueOf(dbSheet.getRow(0).getCell(colDbIdx)),
-									String.valueOf(dbSheet.getRow(rowDbIdx).getCell(colDbIdx)));
-						}
+						targetValues = getDbRecord(dbSheet, targetSoNum, propMap);
+					}
 
-						List <String> targetValues = new ArrayList<>() ;
-
-						//DBMapから期待値を算出
-						targetValues.add( dbMap.get(propMap.get(MAPKEY_COL_ID)) );
-						String expectValue = editValue(targetValues, propMap);
+						String expectValue = editValue( targetValues, propMap );
 
 						//期待値シートの行を指定し（＝INPUT2のCSV情報と同一のセル）、書式を期待値を出力
 						expectItemCell = expectRow.createCell(h);
 						expectItemCell.setCellStyle(textStyle);
-						expectItemCell.setCellValue( expectValue );
-					}
+						expectItemCell.setCellValue(expectValue);
 				}
-
 			}
 			//後処理
 			wbExpect.write(outputStream);
 			outputStream.close();
 			wbExpect.close();
+			System.out.println("処理終了");
 		} catch (Exception e) {
 			e.printStackTrace();
 			if(expectFile.exists()) {
 				expectFile.delete();
 			}
 		}
+	}
+
+	/**
+	 * 指定したDBシートから、統合SO番号とCSV項目名をもとに、DBカラム1項目を取得する。
+	 * @param dbSheet シート名
+	 * @param soNum 統合SO番号
+	 * @param propMap プロパティファイル名
+	 * @return カラム値リスト
+	 */
+	private static List<String> getDbRecord(Sheet dbSheet, String soNum, Map<String,String> propMap) {
+
+		List<String> valueList = new ArrayList<>();
+
+		//DBシートの1列目から、統合SO番号の数分ループ
+		for( int rowDbIdx = 0; rowDbIdx <= dbSheet.getLastRowNum(); rowDbIdx++ ) {
+
+			//DBシートの1列目の統合SO番号とCSVの統合SO番号が一致しないものは排除
+			if( ! String.valueOf(dbSheet.getRow(rowDbIdx).getCell(0)).equals(soNum) ) {
+				continue;
+			}
+
+			Map <String, String> dbMap = new HashMap<>();
+
+			//DBシートの1行目
+			Row idRow = dbSheet.getRow(0);
+			//DBシートの1行目カラムIDの数分ループ
+			for( int colDbIdx = 0;colDbIdx < idRow.getLastCellNum(); colDbIdx++ ) {
+				//DBシートの対象の行をMapに格納
+				dbMap.put( String.valueOf(dbSheet.getRow(0).getCell(colDbIdx)),
+						String.valueOf(dbSheet.getRow(rowDbIdx).getCell(colDbIdx)) );
+			}
+
+			//DBMapから期待値を算出
+			valueList.add( dbMap.get(propMap.get(MAPKEY_COL_ID)) );
+		}
+
+		return valueList;
+
+	}
+
+	private static String[] getDbList(Map<String,String> propMap) {
+
+		String dbInfo = propMap.get(MAPKEY_TABLE_NAME);
+
+		String[] dbList = dbInfo.split(FULL_POINT);
+
+		return dbList;
 	}
 
 	/**
@@ -249,17 +280,17 @@ public class CsvOutputTool {
 	 * @param propMap プロパティファイル情報
 	 * @return シート名
 	 */
-	private static String getSheetName(Map<String, String>propMap) {
+	private static String getSheetName(String dbName) {
 
 		String sheetName = "";
 
-		if( CSV_OUTPUT_DATA.equals(propMap.get(MAPKEY_TABLE_NAME)) ) {
+		if( CSV_OUTPUT_DATA.equals(dbName) ) {
 			sheetName = "CSV出力用";
-		}else if( JOB_INFO.equals(propMap.get(MAPKEY_TABLE_NAME)) ) {
+		}else if( JOB_INFO.equals(dbName) ) {
 			sheetName = "工事情報(制御)";
-		}else if ( JOB_INFO_DETAIL.equals(propMap.get(MAPKEY_TABLE_NAME)) ) {
+		}else if ( JOB_INFO_DETAIL.equals(dbName) ) {
 			sheetName = "工事情報(詳細)";
-		}else if ( JOB_INFO_DETAIL2.equals(propMap.get(MAPKEY_TABLE_NAME)) ) {
+		}else if ( JOB_INFO_DETAIL2.equals(dbName) ) {
 			sheetName = "工事情報(詳細2)";
 		}
 		return sheetName;
@@ -279,7 +310,7 @@ public class CsvOutputTool {
 		int i = 0;
 
 		if( valueList.size() != 1) {
-			for(i = 0 ; i < valueList.size(); i++) {
+			for( i = 0 ; i < valueList.size(); i++ ) {
 				editValues[i] = valueList.get(i);
 			}
 		}else {
