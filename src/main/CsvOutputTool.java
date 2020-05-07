@@ -171,6 +171,7 @@ public class CsvOutputTool {
 					String[] dbList = getDbList(propMap);
 
 					List<String> targetValues = new ArrayList<>();
+					//★取得元DB複数の場合、取れてない。↓
 
 					//取得元DBの数分ループ
 					for(int d = 0; d < dbList.length; d++) {
