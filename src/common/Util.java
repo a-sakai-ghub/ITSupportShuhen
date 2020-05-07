@@ -7,6 +7,20 @@ import com.ibm.icu.text.Transliterator;
 
 public class Util {
 
+	public static void main(String args[]) throws ParseException {
+		Util util = new Util();
+		String head[] = new String[2];
+		head[0] = "都道府県";
+		head[1] = "市区町村";
+		String data[] = new String[2];
+		data[0] = "東京都";
+		data[1] = "豊島区";
+
+		String str = util.editArticle(head, data, 2);
+		System.out.println(str);
+	}
+
+
 	/**
 	 * ハイフンを除去するメソッド
 	 * targetData 編集対象文字列
@@ -132,10 +146,105 @@ public class Util {
 		return returnData;
 	}
 
-	//コード変換(東西変換)
-	//和名変換
-	//記事欄編集
-	//修正箇所
-	//有無系
+	/**
+	 * コード変換をするメソッド（東 → 西変換）
+	 * eastCode 変換対象コード値
+	 * dataNum 流通項目通番
+	 * @return westCode 変換後コード値
+	 */
+	public String changeEastToWestCode(String eastCode, String dataNum) {
+
+		String westCode = "";
+
+		/*
+		 * --SQLイメージ--
+		 * SELECT westCode FROM CODE_M
+		 * WHERE DATANUM='dataNum' AND EASTCODE='eastCode';
+		 *
+		 */
+
+		return westCode;
+	}
+
+	/**
+	 * コード変換をするメソッド（西 → 東変換）
+	 * westCode 変換対象コード値
+	 * dataNum 流通項目通番
+	 * @return eastCode 変換後コード値
+	 */
+	public String changeWestToEastCode(String westCode, String dataNum) {
+
+		String eastCode = "";
+
+		/*
+		 * --SQLイメージ--
+		 * SELECT eastCode FROM CODE_M
+		 * WHERE DATANUM='dataNum' AND WESTCODE='westCode';
+		 *
+		 */
+
+		return eastCode;
+	}
+
+	/**
+	 * 和名変換をするメソッド（コード → 和名変換）
+	 * code 変換対象コード値
+	 * dataNum 流通項目通番
+	 * @return japaneseName 変換後文字列
+	 */
+	public String changeJapanese(String code, String dataNum) {
+
+		String japaneseName = "";
+
+		/*
+		 * --SQLイメージ--
+		 * SELECT japaneseName FROM CODE_WAMEI
+		 * WHERE DATANUM='dataNum' AND CODE='code';
+		 *
+		 */
+
+		return japaneseName;
+	}
+
+	/**
+	 * 記事欄編集
+	 * itemName 項目名
+	 * targetData 結合するデータ配列
+	 * count 結合するデータ数
+	 * @return returnData 編集後文字列
+	 */
+	public String editArticle(String[] itemName, String[] targetData, int count) {
+
+		String returnData = "";
+
+		for (int i = 0; i < count - 1; i++) {
+			returnData = returnData + itemName[i] + Const.COLON
+					+ targetData[i] + Const.FULLWIDTH_SPACE + Const.SQUARE;
+		}
+
+		returnData = returnData + itemName[count - 1] + Const.COLON + targetData[count - 1];
+
+		return returnData;
+	}
+
+	/**
+	 * 判定項目（有無判定など）
+	 * targetData 判定するデータ
+	 * @return returnData 判定後項目
+	 */
+	public String judgeData(String itemName) {
+
+		String returnData = "";
+
+		//G-elf-req-flag=1 or g-rd-cop-req-flg=1の場合　1 それ以外、0
+
+		return returnData;
+	}
+
+	/**
+	 * 修正箇所
+	 * @return returnData 修正箇所
+	 */
+
 
 }
