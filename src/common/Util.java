@@ -1,24 +1,20 @@
 package common;
 
+import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 
 import com.ibm.icu.text.Transliterator;
 
 public class Util {
 
-	public static void main(String args[]) throws ParseException {
-		Util util = new Util();
-		String head[] = new String[2];
-		head[0] = "都道府県";
-		head[1] = "市区町村";
-		String data[] = new String[2];
-		data[0] = "東京都";
-		data[1] = "豊島区";
-
-		String str = util.editArticle(head, data, 2);
-		System.out.println(str);
-	}
+	private static final String CODE_MASTER_PATH = "codemaster\\コードマスタ.xlsx";
 
 
 	/**
@@ -152,16 +148,34 @@ public class Util {
 	 * dataNum 流通項目通番
 	 * @return westCode 変換後コード値
 	 */
-	public String changeEastToWestCode(String eastCode, String dataNum) {
+	public String changeEastToWestCode(String dataNum, String eastCode) {
 
 		String westCode = "";
 
-		/*
-		 * --SQLイメージ--
-		 * SELECT westCode FROM CODE_M
-		 * WHERE DATANUM='dataNum' AND EASTCODE='eastCode';
-		 *
-		 */
+		try {
+			Workbook book = WorkbookFactory.create(new File(CODE_MASTER_PATH));
+			//1シート目
+			Sheet sheet = book.getSheetAt(0);
+
+		    for (int rowNum = 1; rowNum <= sheet.getLastRowNum(); rowNum++) {
+				//行数の指定
+		    	Row row = sheet.getRow(rowNum);
+				//通番と東コード取得セルを指定
+		    	Cell numCell = row.getCell(0);
+				Cell codeCell = row.getCell(5);
+
+			    //通番と東コードが引数と一致したら、西コードを取得し、forを抜ける
+				if(String.valueOf(numCell).equals(dataNum)
+			    		& String.valueOf(codeCell).equals(eastCode)) {
+			    	Cell returnCell = row.getCell(3);
+			    	westCode = returnCell.getStringCellValue();
+			    	break;
+			    }
+		    }
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		return westCode;
 	}
@@ -172,16 +186,34 @@ public class Util {
 	 * dataNum 流通項目通番
 	 * @return eastCode 変換後コード値
 	 */
-	public String changeWestToEastCode(String westCode, String dataNum) {
+	public String changeWestToEastCode(String dataNum, String westCode) {
 
 		String eastCode = "";
 
-		/*
-		 * --SQLイメージ--
-		 * SELECT eastCode FROM CODE_M
-		 * WHERE DATANUM='dataNum' AND WESTCODE='westCode';
-		 *
-		 */
+		try {
+			Workbook book = WorkbookFactory.create(new File(CODE_MASTER_PATH));
+			//1シート目
+			Sheet sheet = book.getSheetAt(0);
+
+			for (int rowNum = 1; rowNum <= sheet.getLastRowNum(); rowNum++) {
+				//行数の指定
+				Row row = sheet.getRow(rowNum);
+				//通番と西コード取得セルを指定
+				Cell numCell = row.getCell(0);
+				Cell codeCell = row.getCell(3);
+
+				//通番と西コードが引数と一致したら、東コードを取得し、forを抜ける
+				if(String.valueOf(numCell).equals(dataNum)
+						& String.valueOf(codeCell).equals(westCode)) {
+					Cell returnCell = row.getCell(5);
+					eastCode = returnCell.getStringCellValue();
+					break;
+				}
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		return eastCode;
 	}
@@ -192,16 +224,34 @@ public class Util {
 	 * dataNum 流通項目通番
 	 * @return japaneseName 変換後文字列
 	 */
-	public String changeJapanese(String code, String dataNum) {
+	public String changeCodeToJapanese(String dataNum, String westCode) {
 
 		String japaneseName = "";
 
-		/*
-		 * --SQLイメージ--
-		 * SELECT japaneseName FROM CODE_WAMEI
-		 * WHERE DATANUM='dataNum' AND CODE='code';
-		 *
-		 */
+		try {
+			Workbook book = WorkbookFactory.create(new File(CODE_MASTER_PATH));
+			//1シート目
+			Sheet sheet = book.getSheetAt(0);
+
+			for (int rowNum = 1; rowNum <= sheet.getLastRowNum(); rowNum++) {
+				//行数の指定
+				Row row = sheet.getRow(rowNum);
+				//通番と西コード取得セルを指定
+				Cell numCell = row.getCell(0);
+				Cell codeCell = row.getCell(3);
+
+				//通番と西コードが引数と一致したら、和名を取得し、forを抜ける
+				if(String.valueOf(numCell).equals(dataNum)
+						& String.valueOf(codeCell).equals(westCode)) {
+					Cell returnCell = row.getCell(4);
+					japaneseName = returnCell.getStringCellValue();
+					break;
+				}
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		return japaneseName;
 	}
