@@ -14,7 +14,38 @@ import com.ibm.icu.text.Transliterator;
 
 public class Util {
 
+	/**
+	 * コードマスタファイル名
+	 */
 	private static final String CODE_MASTER_PATH = "codemaster\\コードマスタ.xlsx";
+	/**
+	 * 流通項目通番セル番号
+	 */
+	private static final int DATA_NUM = 0;
+	/**
+	 * 西コードセル番号
+	 */
+	private static final int WEST_CODE = 3;
+	/**
+	 * 東コードセル番号
+	 */
+	private static final int EAST_CODE = 5;
+	/**
+	 * コード和名セル番号
+	 */
+	private static final int JAPANESE_NAME = 4;
+	/**
+	 * 統合SO番号
+	 */
+	private static final String A_INTG_NUM = "統合SO番号";
+	/**
+	 * 一体化設計対象
+	 */
+	private static final String INTEGRATED_TARGET = "一体化設計対象";
+	/**
+	 * 注文区分
+	 */
+	private static final String ORDER_DIVISION = "注文区分";
 
 
 	/**
@@ -161,13 +192,13 @@ public class Util {
 				//行数の指定
 		    	Row row = sheet.getRow(rowNum);
 				//通番と東コード取得セルを指定
-		    	Cell numCell = row.getCell(0);
-				Cell codeCell = row.getCell(5);
+		    	Cell numCell = row.getCell(DATA_NUM);
+				Cell codeCell = row.getCell(EAST_CODE);
 
 			    //通番と東コードが引数と一致したら、西コードを取得し、forを抜ける
 				if(String.valueOf(numCell).equals(dataNum)
 			    		& String.valueOf(codeCell).equals(eastCode)) {
-			    	Cell returnCell = row.getCell(3);
+			    	Cell returnCell = row.getCell(WEST_CODE);
 			    	westCode = returnCell.getStringCellValue();
 			    	break;
 			    }
@@ -199,13 +230,13 @@ public class Util {
 				//行数の指定
 				Row row = sheet.getRow(rowNum);
 				//通番と西コード取得セルを指定
-				Cell numCell = row.getCell(0);
-				Cell codeCell = row.getCell(3);
+				Cell numCell = row.getCell(DATA_NUM);
+				Cell codeCell = row.getCell(WEST_CODE);
 
 				//通番と西コードが引数と一致したら、東コードを取得し、forを抜ける
 				if(String.valueOf(numCell).equals(dataNum)
 						& String.valueOf(codeCell).equals(westCode)) {
-					Cell returnCell = row.getCell(5);
+					Cell returnCell = row.getCell(EAST_CODE);
 					eastCode = returnCell.getStringCellValue();
 					break;
 				}
@@ -237,13 +268,13 @@ public class Util {
 				//行数の指定
 				Row row = sheet.getRow(rowNum);
 				//通番と西コード取得セルを指定
-				Cell numCell = row.getCell(0);
-				Cell codeCell = row.getCell(3);
+				Cell numCell = row.getCell(DATA_NUM);
+				Cell codeCell = row.getCell(WEST_CODE);
 
 				//通番と西コードが引数と一致したら、和名を取得し、forを抜ける
 				if(String.valueOf(numCell).equals(dataNum)
 						& String.valueOf(codeCell).equals(westCode)) {
-					Cell returnCell = row.getCell(4);
+					Cell returnCell = row.getCell(JAPANESE_NAME);
 					japaneseName = returnCell.getStringCellValue();
 					break;
 				}
@@ -279,22 +310,132 @@ public class Util {
 
 	/**
 	 * 判定項目（有無判定など）
-	 * targetData 判定するデータ
+	 * itemName 判定項目名
+	 * data 判定するデータ
 	 * @return returnData 判定後項目
 	 */
-	public String judgeData(String itemName) {
+	public String judgeData(String itemName, String[] data) {
 
 		String returnData = "";
 
-		//G-elf-req-flag=1 or g-rd-cop-req-flg=1の場合　1 それ以外、0
+		/**
+		 * 統合SO番号
+		 */
+		if(itemName.equals(A_INTG_NUM)) {
+			//[0]IpOpsSO番号 != null && [1]ARENASO番号 = nullの場合、IpOpsSO番号に2020付与
+			if(data[0] != null && data[1] == null) {
+				returnData = "2020" + data[0];
+
+			//[0]IpOpsSO番号 = null && [1]ARENASO番号 != nullの場合、ARENASO番号上2桁切
+			} else if(data[0] == null && data[1] != null) {
+				returnData = data[1].substring(2);
+
+			//[0]IpOpsSO番号 != null && [1]ARENASO番号 != nullの場合、ARENASO番号上2桁切
+			} else if(data[0] != null && data[1] != null) {
+				returnData = data[1].substring(2);
+			}
+
+		/**
+		 * 注文区分
+		 */
+		} else if(itemName.equals(ORDER_DIVISION)) {
+			//[0]注文種類が110の場合、注文区分は「11」
+			if(data[0] == "110") {
+				returnData = "11";
+
+			//[0]注文種類が111の場合、注文区分は「10」
+			}else if(data[0] == "111") {
+				returnData = "10";
+
+			//[0]注文種類が112の場合、注文区分は「01」
+			}else if(data[0] == "112") {
+				returnData = "01";
+
+			//[0]注文種類が113の場合、注文区分は「11」
+			}else if(data[0] == "113") {
+				returnData = "11";
+
+			//[0]注文種類が114の場合、注文区分は「10」
+			}else if(data[0] == "114") {
+				returnData = "10";
+
+			//[0]注文種類が115の場合、注文区分は「01」
+			}else if(data[0] == "115") {
+				returnData = "01";
+			}
+
+		/**
+		 * 一体化設計対象
+		 */
+		} else if(itemName.equals(INTEGRATED_TARGET)) {
+			//[0]Rat-exam-sits = 5 && [1]e-acc-wit = q. の場合、「01:対象」
+			if(data[0] == "5" && data[1] == "q.") {
+				returnData = "01";
+			//それ以外の場合、「02:対象外とする」
+			}else {
+				returnData = "02";
+			}
+
+		/**
+		 * 社外申請有無
+		 */
+		} else if(itemName.equals(INTEGRATED_TARGET)) {
+			//[0]G-elf-req-flag = 1 && [1]g-rd-cop-req-flg = 1 の場合、「1」
+			if(data[0] == "1" && data[1] == "1") {
+				returnData = "1";
+			//それ以外の場合、「0」
+			}else {
+				returnData = "0";
+			}
+
+		/**
+		 * 一体化設計有無
+		 */
+		} else if(itemName.equals(INTEGRATED_TARGET)) {
+			//[0]Rmt-exam-sts = 5 && [1].e-acc-wit = 1 の場合、「1」
+			if(data[0] == "5" && data[1] == "1") {
+				returnData = "1";
+			//それ以外の場合、「0」
+			}else {
+				returnData = "0";
+			}
+
+		/**
+		 * サ総工事有無
+		 */
+		} else if(itemName.equals(INTEGRATED_TARGET)) {
+			//[0]Rmt-exam-sts != 5 && [1].e-acc-wit = 1 の場合、「1」
+			if(data[0] == "5" && data[1] == "1") {
+				returnData = "1";
+			//それ以外の場合、「0」
+			}else {
+				returnData = "0";
+			}
+		}
 
 		return returnData;
 	}
 
 	/**
 	 * 修正箇所
+	 * targetData 対象データ
+	 * historyData 履歴情報
 	 * @return returnData 修正箇所
 	 */
+	public String fixLocation(String[] targetData, String[] historyData) {
+
+		String returnData = "";
+
+		for(int i = 0; i < targetData.length; i++) {
+			if(!targetData[i].equals(historyData[i])){
+				returnData = returnData + "," + targetData[i];
+			}
+		}
+
+		return returnData;
+	}
+
+
 
 
 }
