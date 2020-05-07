@@ -50,18 +50,6 @@ public class CsvOutputTool {
 
 	private static final String MAPKEY_OTHER_INFO="OTHER_INFO";
 
-	private static final String EDIT_TYPE_NOTHING="1";
-
-	private static final String EDIT_TYPE_REMOVE_SLASH="2";
-
-	private static final String EDIT_TYPE_REMOVE_HYPHEN="3";
-
-	private static final String EDIT_TYPE_UNION_DATA="4";
-
-	private static final String EDIT_TYPE_CHANGE_HALF_WIDTH="5";
-
-	private static final String EDIT_TYPE_CUT_DIGIT="6";
-
 	private static final String CSV_OUTPUT_DATA="CSV_OUTPUT_DATA";
 
 	private static final String JOB_INFO="JOB_INFO";
@@ -71,14 +59,36 @@ public class CsvOutputTool {
 	private static final String JOB_INFO_DETAIL2="JOB_INFO_DETAIL2";
 
 	/**
+	 * 編集方法
+	 */
+	private static final String EDIT_TYPE_NOTHING="1";
+	private static final String EDIT_TYPE_REMOVE_SLASH="2";
+	private static final String EDIT_TYPE_REMOVE_HYPHEN="3";
+	private static final String EDIT_TYPE_UNION_DATA="4";
+	private static final String EDIT_TYPE_CHANGE_HALF_WIDTH="5";
+	private static final String EDIT_TYPE_CUT_DIGIT="6";
+	private static final String EDIT_TYPE_CHANGE_EAST_TO_WEST_CODE="7";
+	private static final String EDIT_TYPE_CHANGE_EAST_TO_WEST_CODE_TO_JAPANESE="8";
+	private static final String EDIT_TYPE_CHANGE_CODE_TO_JAPANESE="9";
+
+	/**
 	 * Input2(試験結果CSVの情報)のキー情報をもとに、Input2(DB情報)から期待値を算出し、期待値シートに出力する。
 	 * @param input1 DB情報
 	 * @param input2 試験結果CSV情報
 	 */
-	public void expectCalculate(String input1, String input2) {
+//	public void expectCalculate(String input1, String input2) {
+	public static void main(String[] args) {
+		/**
+		 * 任意の値を設定
+		 */
+		//DB貼り付け情報（CSV出力用、工事情報(制御)、工事情報(詳細)、工事情報(詳細2)の4シートが記載されたファイル）
+		String input1 = "C:\\Users\\hirom\\OneDrive\\Documents\\Oracle_TESTDB\\INPUT1_DB.xlsx";
+		//CSV貼り付け情報（試験結果のCSVの情報の1シート）
+		String input2 = "C:\\Users\\hirom\\OneDrive\\Documents\\Oracle_TESTDB\\INPUT2_CSV.xlsx";
 
 		//「期待値ファイル」のパスを指定
-		String outputDir = "C:\\Sample\\";
+		String outputDir = "C:\\Users\\hirom\\OneDrive\\Documents\\Oracle_TESTDB\\20200507\\";
+
 		// 現在日時を取得
 		Date date = new Date();
 		// 表示形式を指定
@@ -142,11 +152,14 @@ public class CsvOutputTool {
 				}
 			}
 
+			Properties prop = new Properties();
+			prop.load(new FileInputStream(PATH_CSV_PROPERTIES));
+
 			// CSV情報から取得した統合SO番号分ループ
 			for( int i=0; i < soList.size(); i++ ){
 
 				//SO番号を取得
-				String targetSoNum = soList.get(i);
+				String targetSoNo = soList.get(i);
 				//期待値シートの行を作成（＝INPUT2のCSV情報と同一の行）
 				expectRow = expectSheet.getRow(i + 1);
 				expectRow = expectSheet.createRow(i + 1);
@@ -158,7 +171,7 @@ public class CsvOutputTool {
 					String headerName = headerList.get(h);
 
 					//CSV項目名からプロパティファイルの情報を取得する。
-					Map<String,String> propMap = getProp(headerName);
+					Map<String,String> propMap = getProp(prop, headerName);
 
 					if( ! headerName.equals(propMap.get(MAPKEY_CSV_ITEM_NAME)) ) {
 						continue;
@@ -177,9 +190,10 @@ public class CsvOutputTool {
 						Sheet dbSheet = wb1.getSheet(getSheetName(dbName));
 
 						//シートから取得した、値をリストに格納
-						targetValues.add(getDbRecord(dbSheet, targetSoNum, propMap, d));
+						targetValues.add(getDbRecord(dbSheet, targetSoNo, propMap, d));
 					}
 
+					//DBシートから取得したデータおよびプロパティファイル情報から、期待値を算出する。
 					String expectValue = editValue( targetValues, propMap );
 
 					//期待値シートの行を指定し（＝INPUT2のCSV情報と同一のセル）、書式を期待値を出力
@@ -259,16 +273,14 @@ public class CsvOutputTool {
 
 	/**
 	 * プロパティファイルからキーを指定し、値を取得して情報をMapに格納する。
-	 * @param key CSV項目名
+	 * @param headerName CSV項目名
 	 * @return プロパティ情報Map
 	 * @throws IOException
 	 */
-	private static Map<String,String> getProp(String key) throws IOException {
+	private static Map<String,String> getProp(Properties prop, String headerName) throws IOException {
 
-		Properties prop = new Properties();
-		prop.load(new FileInputStream(PATH_CSV_PROPERTIES));
-
-		String propInfo = String.valueOf(prop.get(key));
+		//CSV項目(キー)から、プロパティファイルの値を取得する。
+		String propInfo = String.valueOf(prop.get(headerName));
 		String[] propList = propInfo.split(COMMA);
 
 		Map <String, String> propMap = new HashMap<>();
@@ -278,6 +290,7 @@ public class CsvOutputTool {
 		propMap.put(MAPKEY_CSV_ITEM_NAME, propList[3]);
 		propMap.put(MAPKEY_EDIT_TYPE, propList[4]);
 
+		//値6(桁切り桁数、コード通番等)がある場合、取得する。
 		if(propList.length > 5) {
 			propMap.put(MAPKEY_OTHER_INFO, propList[5]);
 		}
@@ -286,8 +299,8 @@ public class CsvOutputTool {
 
 	/**
 	 * プロパティファイル情報からシート名を取得。
-	 * @param propMap プロパティファイル情報
-	 * @return シート名
+	 * @param dbName 取得元テーブル名
+	 * @return 取得元シート名
 	 */
 	private static String getSheetName(String dbName) {
 
@@ -331,6 +344,7 @@ public class CsvOutputTool {
 
 		//プロパティファイルから編集方法情報を取得する。
 		String editType = propMap.get(MAPKEY_EDIT_TYPE);
+		String editOtherInfo = propMap.get(MAPKEY_OTHER_INFO);
 		Util util = new Util();
 
 		//項目編集なし
@@ -347,7 +361,7 @@ public class CsvOutputTool {
 		}
 		//文字列結合
 		if( editType.equals(EDIT_TYPE_UNION_DATA)) {
-			editedValue = util.unionData(editValues, Integer.parseInt(propMap.get(MAPKEY_OTHER_INFO)), Const.EMPTY_STRING);
+			editedValue = util.unionData(editValues, Integer.parseInt(editOtherInfo), Const.EMPTY_STRING);
 		}
 		//全角→半角変換
 		if( editType.equals(EDIT_TYPE_CHANGE_HALF_WIDTH)) {
@@ -355,7 +369,19 @@ public class CsvOutputTool {
 		}
 		//桁切り
 		if( editType.equals(EDIT_TYPE_CUT_DIGIT)) {
-			editedValue = util.cutDigit(value, Integer.parseInt(propMap.get(MAPKEY_OTHER_INFO)), Const.END_STRING);
+			editedValue = util.cutDigit(value,  Integer.parseInt(editOtherInfo), Const.END_STRING);
+		}
+		//コード変換(東コード→西コード)
+		if( editType.equals(EDIT_TYPE_CHANGE_EAST_TO_WEST_CODE) ) {
+			editedValue = util.changeEastToWestCode(editOtherInfo, value);
+		}
+		//コード変換(東コード→西コード→西和名)
+		if( editType.equals(EDIT_TYPE_CHANGE_EAST_TO_WEST_CODE_TO_JAPANESE) ) {
+			editedValue = util.changeCodeToJapanese(editOtherInfo, util.changeEastToWestCode(editOtherInfo, value));
+		}
+		//コード変換(西コード→西和名)
+		if( editType.equals(EDIT_TYPE_CHANGE_CODE_TO_JAPANESE) ){
+			editedValue = util.changeCodeToJapanese(editOtherInfo, value);
 		}
 		return editedValue;
 	}
