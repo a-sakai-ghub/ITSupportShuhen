@@ -214,8 +214,4 @@ public class SoGaiGyoumuHaneiEditList {
 		this.cutDigitInfo = cutDigitInfo;
 	}
 
-
-
-
-
 }
