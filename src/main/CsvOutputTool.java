@@ -76,7 +76,16 @@ public class CsvOutputTool {
 	 * @param input1 DB情報
 	 * @param input2 試験結果CSV情報
 	 */
-	public void expectCalculate(String input1, String input2) {
+		public void expectCalculate(String input1, String input2) {
+
+//	public static void main(String[] args) {
+		/**
+		 * 任意の値を設定
+		 */
+		//DB貼り付け情報（CSV出力用、工事情報(制御)、工事情報(詳細)、工事情報(詳細2)の4シートが記載されたファイル）
+		input1 = "input1/CSV出力ツール用INPUT1.xlsx";
+		//CSV貼り付け情報（試験結果のCSVの情報の1シート）
+		input2 = "input2/CSV出力ツール用INPUT2.xlsx";
 
 		//「期待値ファイル」のパスを指定
 		String outputDir = "C:\\Sample\\";
