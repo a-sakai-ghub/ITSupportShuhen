@@ -1,11 +1,21 @@
 package common;
 
+import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 
 import com.ibm.icu.text.Transliterator;
 
 public class Util {
+
+	private static final String CODE_MASTER_PATH = "codemaster\\コードマスタ.xlsx";
+
 
 	/**
 	 * ハイフンを除去するメソッド
@@ -132,10 +142,159 @@ public class Util {
 		return returnData;
 	}
 
-	//コード変換(東西変換)
-	//和名変換
-	//記事欄編集
-	//修正箇所
-	//有無系
+	/**
+	 * コード変換をするメソッド（東 → 西変換）
+	 * eastCode 変換対象コード値
+	 * dataNum 流通項目通番
+	 * @return westCode 変換後コード値
+	 */
+	public String changeEastToWestCode(String dataNum, String eastCode) {
+
+		String westCode = "";
+
+		try {
+			Workbook book = WorkbookFactory.create(new File(CODE_MASTER_PATH));
+			//1シート目
+			Sheet sheet = book.getSheetAt(0);
+
+		    for (int rowNum = 1; rowNum <= sheet.getLastRowNum(); rowNum++) {
+				//行数の指定
+		    	Row row = sheet.getRow(rowNum);
+				//通番と東コード取得セルを指定
+		    	Cell numCell = row.getCell(0);
+				Cell codeCell = row.getCell(5);
+
+			    //通番と東コードが引数と一致したら、西コードを取得し、forを抜ける
+				if(String.valueOf(numCell).equals(dataNum)
+			    		& String.valueOf(codeCell).equals(eastCode)) {
+			    	Cell returnCell = row.getCell(3);
+			    	westCode = returnCell.getStringCellValue();
+			    	break;
+			    }
+		    }
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return westCode;
+	}
+
+	/**
+	 * コード変換をするメソッド（西 → 東変換）
+	 * westCode 変換対象コード値
+	 * dataNum 流通項目通番
+	 * @return eastCode 変換後コード値
+	 */
+	public String changeWestToEastCode(String dataNum, String westCode) {
+
+		String eastCode = "";
+
+		try {
+			Workbook book = WorkbookFactory.create(new File(CODE_MASTER_PATH));
+			//1シート目
+			Sheet sheet = book.getSheetAt(0);
+
+			for (int rowNum = 1; rowNum <= sheet.getLastRowNum(); rowNum++) {
+				//行数の指定
+				Row row = sheet.getRow(rowNum);
+				//通番と西コード取得セルを指定
+				Cell numCell = row.getCell(0);
+				Cell codeCell = row.getCell(3);
+
+				//通番と西コードが引数と一致したら、東コードを取得し、forを抜ける
+				if(String.valueOf(numCell).equals(dataNum)
+						& String.valueOf(codeCell).equals(westCode)) {
+					Cell returnCell = row.getCell(5);
+					eastCode = returnCell.getStringCellValue();
+					break;
+				}
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return eastCode;
+	}
+
+	/**
+	 * 和名変換をするメソッド（コード → 和名変換）
+	 * code 変換対象コード値
+	 * dataNum 流通項目通番
+	 * @return japaneseName 変換後文字列
+	 */
+	public String changeCodeToJapanese(String dataNum, String westCode) {
+
+		String japaneseName = "";
+
+		try {
+			Workbook book = WorkbookFactory.create(new File(CODE_MASTER_PATH));
+			//1シート目
+			Sheet sheet = book.getSheetAt(0);
+
+			for (int rowNum = 1; rowNum <= sheet.getLastRowNum(); rowNum++) {
+				//行数の指定
+				Row row = sheet.getRow(rowNum);
+				//通番と西コード取得セルを指定
+				Cell numCell = row.getCell(0);
+				Cell codeCell = row.getCell(3);
+
+				//通番と西コードが引数と一致したら、和名を取得し、forを抜ける
+				if(String.valueOf(numCell).equals(dataNum)
+						& String.valueOf(codeCell).equals(westCode)) {
+					Cell returnCell = row.getCell(4);
+					japaneseName = returnCell.getStringCellValue();
+					break;
+				}
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return japaneseName;
+	}
+
+	/**
+	 * 記事欄編集
+	 * itemName 項目名
+	 * targetData 結合するデータ配列
+	 * count 結合するデータ数
+	 * @return returnData 編集後文字列
+	 */
+	public String editArticle(String[] itemName, String[] targetData, int count) {
+
+		String returnData = "";
+
+		for (int i = 0; i < count - 1; i++) {
+			returnData = returnData + itemName[i] + Const.COLON
+					+ targetData[i] + Const.FULLWIDTH_SPACE + Const.SQUARE;
+		}
+
+		returnData = returnData + itemName[count - 1] + Const.COLON + targetData[count - 1];
+
+		return returnData;
+	}
+
+	/**
+	 * 判定項目（有無判定など）
+	 * targetData 判定するデータ
+	 * @return returnData 判定後項目
+	 */
+	public String judgeData(String itemName) {
+
+		String returnData = "";
+
+		//G-elf-req-flag=1 or g-rd-cop-req-flg=1の場合　1 それ以外、0
+
+		return returnData;
+	}
+
+	/**
+	 * 修正箇所
+	 * @return returnData 修正箇所
+	 */
+
 
 }

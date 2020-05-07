@@ -23,7 +23,7 @@ public class ITSupportTool {
 		String input2 = args[2];
 
 
-		if(Const.sintyokuKanri.equals(toolKbn)) {
+		if(Const.SINTYOKU_KANRI_HANEI.equals(toolKbn)) {
 
 
 			//進捗管理反映のクラス呼び出し。
@@ -32,12 +32,19 @@ public class ITSupportTool {
 			skht.expectCalculate(input1, input2);
 
 
-		} else if (Const.csvOutput.equals(toolKbn)) {
+		} else if (Const.CSV_OUTPUT.equals(toolKbn)) {
 
 			//CSV出力クラスの呼び出し。
 			CsvOutputTool csvOutput = new CsvOutputTool();
 
 			csvOutput.expectCalculate(input1, input2);
+
+		} else if (Const.SOGAI_GYOUMU_HANEI.equals(toolKbn)) {
+
+			//CSV出力クラスの呼び出し。
+			SoGaiGyoumuHanei sogai = new SoGaiGyoumuHanei();
+
+			SoGaiGyoumuHanei.expectCalculate(input1, input2);
 
 		}
 

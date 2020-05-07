@@ -4,10 +4,13 @@ public class Const {
 
 
 	/* ツール区分：進捗管理反映 */
-	public static final String sintyokuKanri = "1";
+	public static final String SINTYOKU_KANRI_HANEI = "1";
 
 	/* ツール区分：CSV出力 */
-	public static final String csvOutput = "2";
+	public static final String CSV_OUTPUT = "2";
+
+	/* ツール区分：SO外業務反映 */
+	public static final String SOGAI_GYOUMU_HANEI = "3";
 
 	/* ハイフン */
 	public static final String HYPHEN = "-";
@@ -32,6 +35,18 @@ public class Const {
 
 	/* 末尾 */
 	public static final String END_STRING = "end";
+
+	/* コロン */
+	public static final String COLON = "：";
+
+	/* 全角スペース */
+	public static final String FULLWIDTH_SPACE = "　";
+
+	/* 四角 */
+	public static final String SQUARE = "■";
+
+	/* SO外業務反映ツール：期待値ファイル */
+	public static final String SOGAI_EXPECTED_FILE = "SO外業務期待値ファイル.xlsx";
 
 
 
