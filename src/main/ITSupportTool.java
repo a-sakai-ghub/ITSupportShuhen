@@ -1,5 +1,9 @@
 package main;
 
+import java.io.IOException;
+
+import org.apache.poi.EncryptedDocumentException;
+
 import common.Const;
 
 /**
@@ -23,29 +27,32 @@ public class ITSupportTool {
 		String input2 = args[2];
 
 
-		if(Const.SINTYOKU_KANRI_HANEI.equals(toolKbn)) {
+		try {
+			if (Const.SINTYOKU_KANRI_HANEI.equals(toolKbn)) {
 
+				//進捗管理反映のクラス呼び出し。
+				SintyokuKanriHaneiTool skht = new SintyokuKanriHaneiTool();
 
-			//進捗管理反映のクラス呼び出し。
-			SintyokuKanriHaneiTool skht = new SintyokuKanriHaneiTool();
+				skht.expectCalculate(input1, input2);
 
-			skht.expectCalculate(input1, input2);
+			} else if (Const.CSV_OUTPUT.equals(toolKbn)) {
 
+				//CSV出力クラスの呼び出し。
+				CsvOutputTool csvOutput = new CsvOutputTool();
 
-		} else if (Const.CSV_OUTPUT.equals(toolKbn)) {
+				csvOutput.expectCalculate(input1, input2);
 
-			//CSV出力クラスの呼び出し。
-			CsvOutputTool csvOutput = new CsvOutputTool();
+			} else if (Const.SOGAI_GYOUMU_HANEI.equals(toolKbn)) {
 
-			csvOutput.expectCalculate(input1, input2);
+				//CSV出力クラスの呼び出し。
+				SoGaiGyoumuHanei sogai = new SoGaiGyoumuHanei();
 
-		} else if (Const.SOGAI_GYOUMU_HANEI.equals(toolKbn)) {
+				SoGaiGyoumuHanei.expectCalculate(input1, input2);
 
-			//CSV出力クラスの呼び出し。
-			SoGaiGyoumuHanei sogai = new SoGaiGyoumuHanei();
-
-			SoGaiGyoumuHanei.expectCalculate(input1, input2);
-
+			}
+		} catch (EncryptedDocumentException | IOException e) {
+			// TODO 自動生成された catch ブロック
+			e.printStackTrace();
 		}
 
 
