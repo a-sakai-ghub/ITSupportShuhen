@@ -3,6 +3,7 @@ package common;
 import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -39,13 +40,34 @@ public class Util {
 	 */
 	private static final String A_INTG_NUM = "統合SO番号";
 	/**
+	 * 注文区分
+	 */
+	private static final String ORDER_DIVISION = "注文区分";
+	/**
+	 * サービス種別
+	 */
+	private static final String SERVICE_KIND = "サービス種別";
+	/**
+	 * 現場調査予定日
+	 */
+	private static final String BUILD_RESEARCH_DATE = "現場調査予定日";
+	/**
 	 * 一体化設計対象
 	 */
 	private static final String INTEGRATED_TARGET = "一体化設計対象";
 	/**
-	 * 注文区分
+	 * 社外申請有無
 	 */
-	private static final String ORDER_DIVISION = "注文区分";
+	private static final String OUTSIDE_EXISTENCE = "社外申請有無";
+	/**
+	 * 一体化申請有無
+	 */
+	private static final String INTEGRATED_EXISTENCE = "一体化申請有無";
+	/**
+	 * サ総工事有無
+	 */
+	private static final String SERVICE_EXISTENCE = "サ総工事有無";
+
 
 
 	/**
@@ -362,6 +384,37 @@ public class Util {
 			//[0]注文種類が115の場合、注文区分は「01」
 			}else if(data[0] == "115") {
 				returnData = "01";
+
+			//[0]注文種類が100の場合、注文区分は登録しない
+			}else if(data[0] == "100") {
+				returnData = "";
+
+			//[0]注文種類が120の場合、注文区分は登録しない
+			}else if(data[0] == "120") {
+				returnData = "";
+			}
+
+		/**
+		 * サービス種別
+		 */
+		} else if(itemName.equals(SERVICE_KIND)) {
+			returnData = data[0];
+			if(data[0].equals("102Q") || data[0].equals("102S")) {
+				returnData = "102R";
+			}
+
+		/**
+		 * 現場調査予定日
+		 */
+		} else if(itemName.equals(BUILD_RESEARCH_DATE)) {
+			Date date1 = java.sql.Date.valueOf(data[0]);
+			Date date2 = java.sql.Date.valueOf(data[1]);
+			//[0]ビル調査日1[1]ビル調査日2
+			if(date1.before(date2)) {
+				returnData = date1.toString();
+			//[0]ビル調査日1[1]ビル調査日2
+			}else if(date1.after(date2)) {
+				returnData = date2.toString();
 			}
 
 		/**
@@ -379,7 +432,7 @@ public class Util {
 		/**
 		 * 社外申請有無
 		 */
-		} else if(itemName.equals(INTEGRATED_TARGET)) {
+		} else if(itemName.equals(OUTSIDE_EXISTENCE)) {
 			//[0]G-elf-req-flag = 1 && [1]g-rd-cop-req-flg = 1 の場合、「1」
 			if(data[0] == "1" && data[1] == "1") {
 				returnData = "1";
@@ -391,7 +444,7 @@ public class Util {
 		/**
 		 * 一体化設計有無
 		 */
-		} else if(itemName.equals(INTEGRATED_TARGET)) {
+		} else if(itemName.equals(INTEGRATED_EXISTENCE)) {
 			//[0]Rmt-exam-sts = 5 && [1].e-acc-wit = 1 の場合、「1」
 			if(data[0] == "5" && data[1] == "1") {
 				returnData = "1";
@@ -403,7 +456,7 @@ public class Util {
 		/**
 		 * サ総工事有無
 		 */
-		} else if(itemName.equals(INTEGRATED_TARGET)) {
+		} else if(itemName.equals(SERVICE_EXISTENCE)) {
 			//[0]Rmt-exam-sts != 5 && [1].e-acc-wit = 1 の場合、「1」
 			if(data[0] == "5" && data[1] == "1") {
 				returnData = "1";
