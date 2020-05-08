@@ -1,4 +1,4 @@
-package main;
+package bean;
 
 /**
  * 進捗管理反映ツール　二つのパラメータ紐づけ用クラス
