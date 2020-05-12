@@ -1,9 +1,15 @@
 package common;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -19,6 +25,10 @@ public class Util {
 	 * コードマスタファイル名
 	 */
 	private static final String CODE_MASTER_PATH = "codemaster\\コードマスタ.xlsx";
+	/**
+	 * 記事欄プロパティファイル名
+	 */
+	private static final String PROPERTIES_PATH = "property\\Article.properties";
 	/**
 	 * 流通項目通番セル番号
 	 */
@@ -67,7 +77,6 @@ public class Util {
 	 * サ総工事有無
 	 */
 	private static final String SERVICE_EXISTENCE = "サ総工事有無";
-
 
 
 
@@ -371,6 +380,45 @@ public class Util {
 	}
 
 	/**
+	 * 記事欄抽出
+	 * article 記事欄
+	 * itemName 項目名
+	 * articleName　記事欄名
+	 * @return returnData 編集後文字列
+	 * @throws IOException
+	 * @throws FileNotFoundException
+	 */
+	public String extractionArticle(String article, String itemName, String articleName) throws FileNotFoundException, IOException {
+
+		String returnData = "";
+
+		//記事欄を項目ごとに区切る
+		String[] articleData = article.split(Const.FULLWIDTH_SPACE + Const.SQUARE, 0);
+
+		//プロパティファイルを読み込む
+		Properties prop = new Properties();
+		prop.load(new FileInputStream(PROPERTIES_PATH));
+
+		//記事欄名からプロパティファイルの情報を取得する。
+		Map<String,String> propMap = getProp(prop, articleName);
+
+		String[] itemList = null;
+		int count = articleData.length;
+
+		//記事欄の項目名とデータを分割し、項目名から何番目の値を取得するか確定する
+		for(int i = 0; i < count; i++) {
+			itemList = articleData[i].split(Const.COLON);
+			if(itemName.equals(propMap.get("ITEM" + i))) {
+				returnData = itemList[1];
+				break;
+			}
+		}
+
+		//取得データを戻り値に設定する
+		return returnData;
+	}
+
+	/**
 	 * 判定項目（有無判定など）
 	 * itemName 判定項目名
 	 * data 判定するデータ
@@ -382,17 +430,18 @@ public class Util {
 
 		/**
 		 * 統合SO番号
+		 * SO番号より統合SO番号を生成する。
 		 */
 		if(itemName.equals(A_INTG_NUM)) {
-			//[0]IpOpsSO番号 != null && [1]ARENASO番号 = nullの場合、IpOpsSO番号に2020付与
+			//data[0]IpOpsSO番号 != null && data[1]ARENASO番号 = nullの場合、IpOpsSO番号に2020付与
 			if(data[0] != null && data[1] == null) {
 				returnData = "2020" + data[0];
 
-			//[0]IpOpsSO番号 = null && [1]ARENASO番号 != nullの場合、ARENASO番号上2桁切
+			//data[0]IpOpsSO番号 = null && data[1]ARENASO番号 != nullの場合、ARENASO番号上2桁切
 			} else if(data[0] == null && data[1] != null) {
 				returnData = data[1].substring(2);
 
-			//[0]IpOpsSO番号 != null && [1]ARENASO番号 != nullの場合、ARENASO番号上2桁切
+			//data[0]IpOpsSO番号 != null && data[1]ARENASO番号 != nullの場合、ARENASO番号上2桁切
 			} else if(data[0] != null && data[1] != null) {
 				returnData = data[1].substring(2);
 			}
@@ -401,35 +450,35 @@ public class Util {
 		 * 注文区分
 		 */
 		} else if(itemName.equals(ORDER_DIVISION)) {
-			//[0]注文種類が110の場合、注文区分は「11」
+			//data[0]注文種類が110の場合、注文区分は「11」
 			if(data[0] == "110") {
 				returnData = "11";
 
-			//[0]注文種類が111の場合、注文区分は「10」
+			//data[0]注文種類が111の場合、注文区分は「10」
 			}else if(data[0] == "111") {
 				returnData = "10";
 
-			//[0]注文種類が112の場合、注文区分は「01」
+			//data[0]注文種類が112の場合、注文区分は「01」
 			}else if(data[0] == "112") {
 				returnData = "01";
 
-			//[0]注文種類が113の場合、注文区分は「11」
+			//data[0]注文種類が113の場合、注文区分は「11」
 			}else if(data[0] == "113") {
 				returnData = "11";
 
-			//[0]注文種類が114の場合、注文区分は「10」
+			//data[0]注文種類が114の場合、注文区分は「10」
 			}else if(data[0] == "114") {
 				returnData = "10";
 
-			//[0]注文種類が115の場合、注文区分は「01」
+			//data[0]注文種類が115の場合、注文区分は「01」
 			}else if(data[0] == "115") {
 				returnData = "01";
 
-			//[0]注文種類が100の場合、注文区分は登録しない
+			//data[0]注文種類が100の場合、注文区分は登録しない
 			}else if(data[0] == "100") {
 				returnData = "";
 
-			//[0]注文種類が120の場合、注文区分は登録しない
+			//data[0]注文種類が120の場合、注文区分は登録しない
 			}else if(data[0] == "120") {
 				returnData = "";
 			}
@@ -439,20 +488,22 @@ public class Util {
 		 */
 		} else if(itemName.equals(SERVICE_KIND)) {
 			returnData = data[0];
+			//data[0]サービス種別が102Qまたは102Sの場合、サービス種別を102Rに設定
 			if(data[0].equals("102Q") || data[0].equals("102S")) {
 				returnData = "102R";
 			}
 
 		/**
 		 * 現場調査予定日
+		 * ビル調査日1とビル調査日2で古いほうを登録する
 		 */
 		} else if(itemName.equals(BUILD_RESEARCH_DATE)) {
 			Date date1 = java.sql.Date.valueOf(data[0]);
 			Date date2 = java.sql.Date.valueOf(data[1]);
-			//[0]ビル調査日1[1]ビル調査日2
+			//data[0]ビル調査日1がdata[1]ビル調査日2より古い
 			if(date1.before(date2)) {
 				returnData = date1.toString();
-			//[0]ビル調査日1[1]ビル調査日2
+			//data[0]ビル調査日1がdata[1]ビル調査日2より新しい
 			}else if(date1.after(date2)) {
 				returnData = date2.toString();
 			}
@@ -461,7 +512,7 @@ public class Util {
 		 * 一体化設計対象
 		 */
 		} else if(itemName.equals(INTEGRATED_TARGET)) {
-			//[0]Rat-exam-sits = 5 && [1]e-acc-wit = q. の場合、「01:対象」
+			//data[0]Rat-exam-sits = 5 && data[1]e-acc-wit = q. の場合、「01:対象」
 			if(data[0] == "5" && data[1] == "q.") {
 				returnData = "01";
 			//それ以外の場合、「02:対象外とする」
@@ -473,7 +524,7 @@ public class Util {
 		 * 社外申請有無
 		 */
 		} else if(itemName.equals(OUTSIDE_EXISTENCE)) {
-			//[0]G-elf-req-flag = 1 && [1]g-rd-cop-req-flg = 1 の場合、「1」
+			//data[0]G-elf-req-flag = 1 && data[1]g-rd-cop-req-flg = 1 の場合、「1」
 			if(data[0] == "1" && data[1] == "1") {
 				returnData = "1";
 			//それ以外の場合、「0」
@@ -485,7 +536,7 @@ public class Util {
 		 * 一体化設計有無
 		 */
 		} else if(itemName.equals(INTEGRATED_EXISTENCE)) {
-			//[0]Rmt-exam-sts = 5 && [1].e-acc-wit = 1 の場合、「1」
+			//data[0]Rmt-exam-sts = 5 && data[1].e-acc-wit = 1 の場合、「1」
 			if(data[0] == "5" && data[1] == "1") {
 				returnData = "1";
 			//それ以外の場合、「0」
@@ -497,7 +548,7 @@ public class Util {
 		 * サ総工事有無
 		 */
 		} else if(itemName.equals(SERVICE_EXISTENCE)) {
-			//[0]Rmt-exam-sts != 5 && [1].e-acc-wit = 1 の場合、「1」
+			//data[0]Rmt-exam-sts != 5 && data[1].e-acc-wit = 1 の場合、「1」
 			if(data[0] == "5" && data[1] == "1") {
 				returnData = "1";
 			//それ以外の場合、「0」
@@ -521,7 +572,12 @@ public class Util {
 
 		for(int i = 0; i < targetData.length; i++) {
 			if(!targetData[i].equals(historyData[i])){
-				returnData = returnData + "," + targetData[i];
+				if(returnData.equals("")) {
+					returnData = targetData[i];
+				}
+				else {
+					returnData = returnData + "," + targetData[i];
+				}
 			}
 		}
 
@@ -529,6 +585,27 @@ public class Util {
 	}
 
 
+	/**
+	 * プロパティファイルからキーを指定し、値を取得して情報をMapに格納する。
+	 * @param headerName CSV項目名
+	 * @return プロパティ情報Map
+	 * @throws IOException
+	 */
+	private static Map<String,String> getProp(Properties prop, String articleName) throws IOException {
+
+		//記事欄名(キー)から、プロパティファイルの値を取得する。
+		String propInfo = String.valueOf(prop.get(articleName));
+		String[] propList = propInfo.split(",");
+		int count = propList.length;
+
+		//取得した記事欄項目をMapに格納する
+		Map <String, String> propMap = new HashMap<>();
+		for(int i = 0; i < count; i++) {
+			propMap.put("ITEM" + i, propList[i]);
+		}
+
+		return propMap;
+	}
 
 
 }
