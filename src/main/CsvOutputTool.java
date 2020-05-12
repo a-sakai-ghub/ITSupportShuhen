@@ -50,14 +50,6 @@ public class CsvOutputTool {
 
 	private static final String MAPKEY_OTHER_INFO="OTHER_INFO";
 
-	private static final String CSV_OUTPUT_DATA="CSV_OUTPUT_DATA";
-
-	private static final String JOB_INFO="JOB_INFO";
-
-	private static final String JOB_INFO_DETAIL="JOB_INFO_DETAIL";
-
-	private static final String JOB_INFO_DETAIL2="JOB_INFO_DETAIL2";
-
 	private static final String A_INTG_SO_NUM="統合SO番号";
 
 	/**
@@ -70,9 +62,8 @@ public class CsvOutputTool {
 	private static final String EDIT_TYPE_CHANGE_HALF_WIDTH="5";
 	private static final String EDIT_TYPE_CUT_DIGIT="6";
 	private static final String EDIT_TYPE_CHANGE_EAST_TO_WEST_CODE="7";
-	private static final String EDIT_TYPE_CHANGE_EAST_TO_WEST_CODE_TO_JAPANESE="8";
-	private static final String EDIT_TYPE_CHANGE_CODE_TO_JAPANESE="9";
-	private static final String EDIT_TYPE_UMU="10";
+	private static final String EDIT_TYPE_CHANGE_CODE_TO_JAPANESE="8";
+	private static final String EDIT_TYPE_UMU="9";
 
 	/**
 	 * Input2(試験結果CSVの情報)のキー情報をもとに、Input2(DB情報)から期待値を算出し、期待値シートに出力する。
@@ -119,12 +110,12 @@ public class CsvOutputTool {
 
 			Row input2Row = input2Sheet.getRow(0);
 			Row expectRow = createRow(expectSheet, 0);
-			Cell input2ItemCell = null;
+			//			Cell input2ItemCell = null;
 
 			//Input2の1行目(項目行)を最終行まで取得。
 			for( int colIdx = 0;colIdx <= input2Row.getLastCellNum(); colIdx++ ) {
 
-				input2ItemCell = input2Row.getCell(colIdx);
+				Cell input2ItemCell = input2Row.getCell(colIdx);
 				if(input2ItemCell == null ) {
 					break;
 				}
@@ -137,7 +128,12 @@ public class CsvOutputTool {
 				// 1行目の項目名から「統合SO番号」列の位置を特定し、統合SO番号を最終行まで取得しリストに格納。
 				if( String.valueOf(input2ItemCell).equals( A_INTG_SO_NUM )){
 					for(int rowIdx = 1; rowIdx <= input2Sheet.getLastRowNum(); rowIdx++ ) {
-						soList.add(String.valueOf(input2Sheet.getRow(rowIdx).getCell(colIdx)));
+						Cell tougouSoCell = (input2Sheet.getRow(rowIdx).getCell(colIdx));
+
+						if(tougouSoCell == null) {
+							break;
+						}
+						soList.add(String.valueOf(tougouSoCell));
 					}
 				}
 			}
@@ -161,20 +157,15 @@ public class CsvOutputTool {
 					//CSV項目名からプロパティファイルの情報を取得する。
 					Map<String,String> propMap = getProp(prop, headerName);
 
-					//プロパティファイルのキーとCSV項目名が一致しないものは排除。
-					if( ! headerName.equals(propMap.get(MAPKEY_CSV_ITEM_NAME)) ) {
-						continue;
-					}
-
+					//プロパティファイルより、テーブル名を取得する
 					String[] dbList = editProp(propMap, MAPKEY_TABLE_NAME, FULL_POINT);
 
 					List<String> targetValues = new ArrayList<>();
 
 					//取得元DBの数分ループ
 					for(int d = 0; d < dbList.length; d++) {
-
 						//プロパティファイルのテーブル情報から、参照先シート名を取得。
-						Sheet dbSheet = wb1.getSheet(getSheetName(dbList[d]));
+						Sheet dbSheet = wb1.getSheet(dbList[d]);
 
 						//シートから取得した、値をリストに格納
 						targetValues.add(getDbRecord(dbSheet, targetSoNo, propMap, d));
@@ -192,10 +183,11 @@ public class CsvOutputTool {
 			wbExpect.write(out);
 			out.close();
 			wbExpect.close();
-			System.out.println("処理終了");
+			print("処理終了");
 		} catch (Exception e) {
 			e.printStackTrace();
 			if(expectFile.exists()) {
+				print("削除して処理終了");
 				expectFile.delete();
 			}
 		}
@@ -285,27 +277,6 @@ public class CsvOutputTool {
 	}
 
 	/**
-	 * プロパティファイル情報からシート名を取得。
-	 * @param dbName 取得元テーブル名
-	 * @return 取得元シート名
-	 */
-	private static String getSheetName(String dbName) {
-
-		String sheetName = "";
-
-		if( CSV_OUTPUT_DATA.equals(dbName) ) {
-			sheetName = "CSV出力用";
-		}else if( JOB_INFO.equals(dbName) ) {
-			sheetName = "工事情報(制御)";
-		}else if ( JOB_INFO_DETAIL.equals(dbName) ) {
-			sheetName = "工事情報(詳細)";
-		}else if ( JOB_INFO_DETAIL2.equals(dbName) ) {
-			sheetName = "工事情報(詳細2)";
-		}
-		return sheetName;
-	}
-
-	/**
 	 * プロパティファイルの項目編集方法情報より、ValueをUtilの各編集メソッドに通す。
 	 * @param valueList DBシート対応値(項目編集前)
 	 * @param propMap プロパティ情報Map
@@ -314,68 +285,71 @@ public class CsvOutputTool {
 	 */
 	private static String editValue(List<String> valueList, Map <String, String>propMap) throws ParseException {
 
+		//DBシートから取得した、項目リストを配列に格納。
 		String[] editValues = new String [valueList.size()];
 		String value = "";
-		int i = 0;
 
 		//DBから取得した値が1つではない場合、配列に格納する。(文字列結合用)
 		if( valueList.size() != 1 ) {
-			for( i = 0 ; i < valueList.size(); i++ ) {
+			for(int i = 0 ; i < valueList.size(); i++ ) {
 				editValues[i] = valueList.get(i);
 			}
 		}else{
 			value = valueList.get(0);
 		}
 
-		//編集後の値(期待値)
-		String expectValue = value;
-
 		//プロパティファイルから編集方法情報を取得する。
-		String editType = propMap.get(MAPKEY_EDIT_TYPE);
+		String[] editTypeInfo = editProp(propMap, MAPKEY_EDIT_TYPE, FULL_POINT);
 		//プロパティファイルMapから、その他の情報を取得する。（桁切り桁数、コード通番等）
 		String editOtherInfo = propMap.get(MAPKEY_OTHER_INFO);
 
+		//編集後の値(期待値)
+		String expectValue = value;
 		Util util = new Util();
 
-		//項目編集なし
-		if( editType.equals(EDIT_TYPE_NOTHING) ) {
-			expectValue = value;
-		}
-		//スラッシュ除去
-		if( editType.equals(EDIT_TYPE_REMOVE_SLASH)) {
-			expectValue = util.removeSlash(value);
-		}
-		//ハイフン除去
-		if( editType.equals(EDIT_TYPE_REMOVE_HYPHEN)) {
-			expectValue = util.removeHyphen(value);
-		}
-		//文字列結合
-		if( editType.equals(EDIT_TYPE_UNION_DATA)) {
-			expectValue = util.unionData(editValues, editValues.length, Const.EMPTY_STRING);
-		}
-		//全角→半角変換
-		if( editType.equals(EDIT_TYPE_CHANGE_HALF_WIDTH)) {
-			expectValue = util.changeHalfWidth(value);
-		}
-		//桁切り
-		if( editType.equals(EDIT_TYPE_CUT_DIGIT)) {
-			expectValue = util.cutDigit(value,  Integer.parseInt(editOtherInfo), Const.END_STRING);
-		}
-		//コード変換(東コード→西コード)
-		if( editType.equals(EDIT_TYPE_CHANGE_EAST_TO_WEST_CODE) ) {
-			expectValue = util.changeEastToWestCode(editOtherInfo, value);
-		}
-		//コード変換(東コード→西コード→西和名)
-		if( editType.equals(EDIT_TYPE_CHANGE_EAST_TO_WEST_CODE_TO_JAPANESE) ) {
-			expectValue = util.changeCodeToJapanese(editOtherInfo, util.changeEastToWestCode(editOtherInfo, value));
-		}
-		//コード変換(西コード→西和名)
-		if( editType.equals(EDIT_TYPE_CHANGE_CODE_TO_JAPANESE) ){
-			expectValue = util.changeCodeToJapanese(editOtherInfo, value);
-		}
-		//有無項目
-		if( editType.equals(EDIT_TYPE_UMU) ) {
-			expectValue = util.judgeData(propMap.get(MAPKEY_CSV_ITEM_NAME), editValues);
+		for(int editTypeIdx = 0; editTypeIdx < editTypeInfo.length; editTypeIdx++) {
+			String editType = editTypeInfo[editTypeIdx];
+			//2回目以降の編集の場合は、すでに出ている期待値を引数として、各編集を行う。
+			if(editTypeIdx >= 1) {
+				value = expectValue;
+			}
+
+			//項目編集なし
+			if( editType.equals(EDIT_TYPE_NOTHING) ) {
+				expectValue = value;
+			}
+			//スラッシュ除去
+			if( editType.equals(EDIT_TYPE_REMOVE_SLASH)) {
+				expectValue = util.removeSlash(value);
+			}
+			//ハイフン除去
+			if( editType.equals(EDIT_TYPE_REMOVE_HYPHEN)) {
+				expectValue = util.removeHyphen(value);
+			}
+			//文字列結合
+			if( editType.equals(EDIT_TYPE_UNION_DATA)) {
+				expectValue = util.unionData(editValues, Const.EMPTY_STRING);
+			}
+			//全角→半角変換
+			if( editType.equals(EDIT_TYPE_CHANGE_HALF_WIDTH)) {
+				expectValue = util.changeHalfWidth(value);
+			}
+			//桁切り
+			if( editType.equals(EDIT_TYPE_CUT_DIGIT)) {
+				expectValue = util.cutDigit(value,  Integer.parseInt(editOtherInfo), Const.END_STRING);
+			}
+			//コード変換(東コード→西コード)
+			if( editType.equals(EDIT_TYPE_CHANGE_EAST_TO_WEST_CODE) ) {
+				expectValue = util.changeEastToWestCode(editOtherInfo, value);
+			}
+			//コード変換(西コード→西和名)
+			if( editType.equals(EDIT_TYPE_CHANGE_CODE_TO_JAPANESE) ){
+				expectValue = util.changeCodeToJapanese(editOtherInfo, value);
+			}
+			//有無項目
+			if( editType.equals(EDIT_TYPE_UMU) ) {
+				expectValue = util.judgeData(propMap.get(MAPKEY_CSV_ITEM_NAME), editValues);
+			}
 		}
 		return expectValue;
 	}
@@ -443,9 +417,7 @@ public class CsvOutputTool {
 	 * @param styleMap 書式情報
 	 */
 	public static void copyRow(Row srcRow, Row destRow, Map<Integer, CellStyle> styleMap) {
-		// reckoning delta rows
-		// pour chaque row
-		for (int j = srcRow.getFirstCellNum(); j <= srcRow.getLastCellNum(); j++) {
+		for (int j = srcRow.getFirstCellNum(); j < srcRow.getLastCellNum(); j++) {
 			Cell oldCell = srcRow.getCell(j);
 			Cell newCell = destRow.getCell(j);
 			if (oldCell != null) {
@@ -500,6 +472,14 @@ public class CsvOutputTool {
 		default:
 			break;
 		}
+	}
+
+	/**
+	 * 実装用System.out.println
+	 * @param str
+	 */
+	private static void print(String str) {
+		System.out.println(str);
 	}
 
 }
