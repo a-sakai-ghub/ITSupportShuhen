@@ -45,6 +45,12 @@ public class Const {
 	/* 四角 */
 	public static final String SQUARE = "■";
 
+	/* カンマ */
+	public static final String COMMA = ",";
+
+	/* 全角「・」 */
+	public static final String FULL_POINT = "・";
+
 	/* SO外業務反映ツール：期待値ファイル */
 	public static final String SOGAI_EXPECTED_FILE = "SO外業務期待値ファイル.xlsx";
 
