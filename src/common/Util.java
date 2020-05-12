@@ -70,6 +70,7 @@ public class Util {
 
 
 
+
 	/**
 	 * ハイフンを除去するメソッド
 	 * targetData 編集対象文字列
@@ -121,13 +122,14 @@ public class Util {
 	/**
 	 * 文字列を結合するメソッド
 	 * targetData 結合するデータ配列
-	 * count 結合するデータ数
 	 * connection 接続文字
 	 * @return returnData 編集後文字列
 	 */
-	public String unionData(String[] targetData, int count, String connection) {
+	public String unionData(String[] targetData, String connection) {
 
 		String returnData = "";
+		//結合するデータ数を取得する
+		int count = targetData.length;
 
 		for (int i = 0; i < count - 1; i++) {
 			returnData = returnData + targetData[i] + connection;
@@ -197,8 +199,8 @@ public class Util {
 
 	/**
 	 * コード変換をするメソッド（東 → 西変換）
-	 * eastCode 変換対象コード値
 	 * dataNum 流通項目通番
+	 * eastCode 変換対象コード値
 	 * @return westCode 変換後コード値
 	 */
 	public String changeEastToWestCode(String dataNum, String eastCode) {
@@ -235,8 +237,8 @@ public class Util {
 
 	/**
 	 * コード変換をするメソッド（西 → 東変換）
-	 * westCode 変換対象コード値
 	 * dataNum 流通項目通番
+	 * westCode 変換対象コード値
 	 * @return eastCode 変換後コード値
 	 */
 	public String changeWestToEastCode(String dataNum, String westCode) {
@@ -273,8 +275,8 @@ public class Util {
 
 	/**
 	 * 和名変換をするメソッド（コード → 和名変換）
-	 * code 変換対象コード値
 	 * dataNum 流通項目通番
+	 * westCode 変換対象コード値
 	 * @return japaneseName 変換後文字列
 	 */
 	public String changeCodeToJapanese(String dataNum, String westCode) {
@@ -310,15 +312,53 @@ public class Util {
 	}
 
 	/**
+	 * 和名変換をするメソッド（和名→コード変換）
+	 * dataNum 流通項目通番
+	 * japaneseName 変換対象和名
+	 * @return japaneseName 変換後文字列
+	 */
+	public String changeJapaneseToCode(String dataNum, String japaneseName) {
+
+		String westCode = "";
+
+		try {
+			Workbook book = WorkbookFactory.create(new File(CODE_MASTER_PATH));
+			//1シート目
+			Sheet sheet = book.getSheetAt(0);
+
+			for (int rowNum = 1; rowNum <= sheet.getLastRowNum(); rowNum++) {
+				//行数の指定
+				Row row = sheet.getRow(rowNum);
+				//通番と和名取得セルを指定
+				Cell numCell = row.getCell(DATA_NUM);
+				Cell japaneseCell = row.getCell(JAPANESE_NAME);
+
+				//通番と和名が引数と一致したら、西コードを取得し、forを抜ける
+				if(String.valueOf(numCell).equals(dataNum)
+						& String.valueOf(japaneseCell).equals(japaneseName)) {
+					Cell returnCell = row.getCell(WEST_CODE);
+					westCode = returnCell.getStringCellValue();
+					break;
+				}
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return westCode;
+	}
+
+	/**
 	 * 記事欄編集
 	 * itemName 項目名
 	 * targetData 結合するデータ配列
-	 * count 結合するデータ数
 	 * @return returnData 編集後文字列
 	 */
-	public String editArticle(String[] itemName, String[] targetData, int count) {
+	public String editArticle(String[] itemName, String[] targetData) {
 
 		String returnData = "";
+		int count = itemName.length;
 
 		for (int i = 0; i < count - 1; i++) {
 			returnData = returnData + itemName[i] + Const.COLON
