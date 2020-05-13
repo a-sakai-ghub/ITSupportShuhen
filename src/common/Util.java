@@ -1,6 +1,5 @@
 package common;
 
-import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -8,17 +7,16 @@ import java.util.Date;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
 
 import com.ibm.icu.text.Transliterator;
 
+/**
+ * 共通処理クラス
+ * @author Mio Matsumoto
+ *
+ */
 public class Util {
 
-	/**
-	 * コードマスタファイル名
-	 */
-	private static final String CODE_MASTER_PATH = "codemaster\\コードマスタ.xlsx";
 	/**
 	 * 流通項目通番セル番号
 	 */
@@ -201,14 +199,11 @@ public class Util {
 	 * eastCode 変換対象コード値
 	 * @return westCode 変換後コード値
 	 */
-	public String changeEastToWestCode(String dataNum, String eastCode) {
+	public String changeEastToWestCode(String dataNum, String eastCode, Sheet sheet) {
 
 		String westCode = "";
 
 		try {
-			Workbook book = WorkbookFactory.create(new File(CODE_MASTER_PATH));
-			//1シート目
-			Sheet sheet = book.getSheetAt(0);
 
 		    for (int rowNum = 1; rowNum <= sheet.getLastRowNum(); rowNum++) {
 				//行数の指定
@@ -239,14 +234,11 @@ public class Util {
 	 * westCode 変換対象コード値
 	 * @return eastCode 変換後コード値
 	 */
-	public String changeWestToEastCode(String dataNum, String westCode) {
+	public String changeWestToEastCode(String dataNum, String westCode, Sheet sheet) {
 
 		String eastCode = "";
 
 		try {
-			Workbook book = WorkbookFactory.create(new File(CODE_MASTER_PATH));
-			//1シート目
-			Sheet sheet = book.getSheetAt(0);
 
 			for (int rowNum = 1; rowNum <= sheet.getLastRowNum(); rowNum++) {
 				//行数の指定
@@ -277,14 +269,11 @@ public class Util {
 	 * westCode 変換対象コード値
 	 * @return japaneseName 変換後文字列
 	 */
-	public String changeCodeToJapanese(String dataNum, String westCode) {
+	public String changeCodeToJapanese(String dataNum, String westCode, Sheet sheet) {
 
 		String japaneseName = "";
 
 		try {
-			Workbook book = WorkbookFactory.create(new File(CODE_MASTER_PATH));
-			//1シート目
-			Sheet sheet = book.getSheetAt(0);
 
 			for (int rowNum = 1; rowNum <= sheet.getLastRowNum(); rowNum++) {
 				//行数の指定
@@ -315,14 +304,11 @@ public class Util {
 	 * japaneseName 変換対象和名
 	 * @return japaneseName 変換後文字列
 	 */
-	public String changeJapaneseToCode(String dataNum, String japaneseName) {
+	public String changeJapaneseToCode(String dataNum, String japaneseName, Sheet sheet) {
 
 		String westCode = "";
 
 		try {
-			Workbook book = WorkbookFactory.create(new File(CODE_MASTER_PATH));
-			//1シート目
-			Sheet sheet = book.getSheetAt(0);
 
 			for (int rowNum = 1; rowNum <= sheet.getLastRowNum(); rowNum++) {
 				//行数の指定
