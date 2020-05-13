@@ -317,7 +317,6 @@ public class CsvOutputTool {
 
 		//編集後の値(期待値)
 		String expectValue = value;
-		Util util = new Util();
 
 		//項目編集を行う回数分ループ
 		for(int editTypeIdx = 0; editTypeIdx < editTypeInfo.length; editTypeIdx++) {
@@ -333,43 +332,43 @@ public class CsvOutputTool {
 			}
 			//スラッシュ除去
 			if( editType.equals(EDIT_TYPE_REMOVE_SLASH)) {
-				expectValue = util.removeSlash(value);
+				expectValue = Util.removeSlash(value);
 			}
 			//ハイフン除去
 			if( editType.equals(EDIT_TYPE_REMOVE_HYPHEN)) {
-				expectValue = util.removeHyphen(value);
+				expectValue = Util.removeHyphen(value);
 			}
 			//文字列結合
 			if( editType.equals(EDIT_TYPE_UNION_DATA)) {
-				expectValue = util.unionData(editValues, Const.EMPTY_STRING);
+				expectValue = Util.unionData(editValues, Const.EMPTY_STRING);
 			}
 			//全角→半角変換
 			if( editType.equals(EDIT_TYPE_CHANGE_HALF_WIDTH)) {
-				expectValue = util.changeHalfWidth(value);
+				expectValue = Util.changeHalfWidth(value);
 			}
 			//桁切り
 			if( editType.equals(EDIT_TYPE_CUT_DIGIT)) {
-				expectValue = util.cutDigit(value, Integer.parseInt(editOtherInfo), Const.END_STRING);
+				expectValue = Util.cutDigit(value, Integer.parseInt(editOtherInfo), Const.END_STRING);
 			}
 			//コード変換(東コード→西コード)
 			if( editType.equals(EDIT_TYPE_CHANGE_EAST_TO_WEST_CODE) ) {
-				expectValue = util.changeEastToWestCode(editOtherInfo, value, codeMSheet);
+				expectValue = Util.changeEastToWestCode(editOtherInfo, value, codeMSheet);
 			}
 			//コード変換(西コード→西和名)
 			if( editType.equals(EDIT_TYPE_CHANGE_CODE_TO_JAPANESE) ){
-				expectValue = util.changeCodeToJapanese(editOtherInfo, value, codeMSheet);
+				expectValue = Util.changeCodeToJapanese(editOtherInfo, value, codeMSheet);
 			}
 			//コード変換(西和名→西コード)
 			if( editType.equals(EDIT_TYPE_CHANGE_JAPANESE_TO_CODE) ){
-				expectValue = util.changeJapaneseToCode(editOtherInfo, value, codeMSheet);
+				expectValue = Util.changeJapaneseToCode(editOtherInfo, value, codeMSheet);
 			}
 			//記事欄抽出
 			if( editType.equals(EDIT_TYPE_EXTRACTION_ARTICLE) ) {
-				expectValue = util.extractionArticle(value, propMap.get(MAPKEY_CSV_ITEM_NAME));
+				expectValue = Util.extractionArticle(value, propMap.get(MAPKEY_CSV_ITEM_NAME));
 			}
 			//有無項目
 			if( editType.equals(EDIT_TYPE_UMU) ) {
-				expectValue = util.judgeData(propMap.get(MAPKEY_CSV_ITEM_NAME), editValues);
+				expectValue = Util.judgeData(propMap.get(MAPKEY_CSV_ITEM_NAME), editValues);
 			}
 		}
 		return expectValue;
