@@ -83,7 +83,7 @@ public class CsvOutputTool {
 	 */
 	public void expectCalculate(String input1, String input2) {
 
-	//	public static void main(String[] args) {
+//		public static void main(String[] args) {
 
 		/**
 		 * 任意の値を設定
@@ -190,6 +190,7 @@ public class CsvOutputTool {
 
 					//期待値シートに期待値を出力する。
 					setCell(expectRow, h ,textStyle, expectValue);
+					print("項目名 " + propMap.get(MAPKEY_CSV_ITEM_NAME) + "●期待値 " + expectValue);
 				}
 			}
 
@@ -371,7 +372,6 @@ public class CsvOutputTool {
 				expectValue = util.judgeData(propMap.get(MAPKEY_CSV_ITEM_NAME), editValues);
 			}
 		}
-		print("項目名 " + propMap.get(MAPKEY_CSV_ITEM_NAME) + "●期待値 " + expectValue);
 		return expectValue;
 	}
 
