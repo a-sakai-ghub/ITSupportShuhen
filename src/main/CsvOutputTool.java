@@ -190,7 +190,7 @@ public class CsvOutputTool {
 
 					//期待値シートに期待値を出力する。
 					setCell(expectRow, h ,textStyle, expectValue);
-					print("項目名 " + propMap.get(MAPKEY_CSV_ITEM_NAME) + "●期待値 " + expectValue);
+					print("項目名 " + propMap.get(MAPKEY_CSV_ITEM_NAME) + "● 期待値 " + expectValue);
 				}
 			}
 
