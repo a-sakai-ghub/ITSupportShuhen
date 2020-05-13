@@ -68,8 +68,10 @@ public class CsvOutputTool {
 	private static final String EDIT_TYPE_CHANGE_CODE_TO_JAPANESE = "8";
 	/*	西和名→西コード	*/
 	private static final String EDIT_TYPE_CHANGE_JAPANESE_TO_CODE = "9";
-	/*	有無項目	*/
-	private static final String EDIT_TYPE_UMU = "10";
+	/* 記事欄抽出 */
+	private static final String EDIT_TYPE_EXTRACTION_ARTICLE="10";
+	/*	有無項目 */
+	private static final String EDIT_TYPE_UMU="11";
 
 	/**
 	 * Input2(試験結果CSVの情報)のキー情報をもとに、Input2(DB情報)から期待値を算出し、期待値シートに出力する。
@@ -314,6 +316,7 @@ public class CsvOutputTool {
 			String expectValue = value;
 			Util util = new Util();
 
+			//項目編集を行う回数分ループ
 			for(int editTypeIdx = 0; editTypeIdx < editTypeInfo.length; editTypeIdx++) {
 				String editType = editTypeInfo[editTypeIdx];
 				//2回目以降の編集の場合は、すでに出ている期待値を引数として、各編集を行う。
@@ -357,11 +360,14 @@ public class CsvOutputTool {
 				if( editType.equals(EDIT_TYPE_CHANGE_JAPANESE_TO_CODE) ){
 					expectValue = util.changeJapaneseToCode(editOtherInfo, value);
 				}
+				//記事欄抽出
+				if( editType.equals(EDIT_TYPE_EXTRACTION_ARTICLE) ) {
+					expectValue = util.extractionArticle(value, propMap.get(MAPKEY_CSV_ITEM_NAME));
+				}
 				//有無項目
 				if( editType.equals(EDIT_TYPE_UMU) ) {
 					expectValue = util.judgeData(propMap.get(MAPKEY_CSV_ITEM_NAME), editValues);
 				}
-				//記事欄
 			}
 			print("項目名 " + propMap.get(MAPKEY_CSV_ITEM_NAME) + "●期待値 " + expectValue);
 			return expectValue;
