@@ -46,6 +46,10 @@ public class Util {
 	 */
 	private static final String ORDER_DIVISION = "注文区分";
 	/**
+	 * 注文種類
+	 */
+	private static final String ORDER_KIND = "注文種類";
+	/**
 	 * サービス種別
 	 */
 	private static final String SERVICE_KIND = "サービス種別";
@@ -69,6 +73,10 @@ public class Util {
 	 * サ総工事有無
 	 */
 	private static final String SERVICE_EXISTENCE = "サ総工事有無";
+	/**
+	 * IpOpsSO番号に付与
+	 */
+	private static final String ADD_IPOPS = "2020";
 
 
 	/**
@@ -80,6 +88,7 @@ public class Util {
 
 		String returnData = "";
 
+		//ハイフンを空文字に置き換える
 		returnData = targetData.replace(Const.HYPHEN, Const.EMPTY_STRING);
 
 		return returnData;
@@ -95,8 +104,11 @@ public class Util {
 
 		String returnData = "";
 
+		//変換後の日付データフォーマットを設定する
 		SimpleDateFormat format1 = new SimpleDateFormat(Const.SLASH_YYYYMMDD);
+		//編集対象の日付データフォーマットを設定する
 		SimpleDateFormat format2 = new SimpleDateFormat(Const.YYYYMMDD);
+		//日付書式を変更する
 		returnData = format1.format(format2.parse(targetData));
 
 		return returnData;
@@ -112,8 +124,11 @@ public class Util {
 
 		String returnData = "";
 
+		//変換後の日付データフォーマットを設定する
 		SimpleDateFormat format1 = new SimpleDateFormat(Const.YYYYMMDD);
+		//編集対象の日付データフォーマットを設定する
 		SimpleDateFormat format2 = new SimpleDateFormat(Const.SLASH_YYYYMMDD);
+		//日付書式を変更する
 		returnData = format1.format(format2.parse(targetData));
 
 		return returnData;
@@ -131,6 +146,7 @@ public class Util {
 		//結合するデータ数を取得する
 		int count = targetData.length;
 
+		//データ数分ループし文字列を結合する
 		for (int i = 0; i < count - 1; i++) {
 			returnData = returnData + targetData[i] + connection;
 		}
@@ -181,6 +197,7 @@ public class Util {
 
 		String returnData = "";
 		returnData = targetData;
+		//編集対象文字列の桁数をカウントする
 		int count = targetData.length();
 
 		//最長文字列よりも多い場合のみ処理を実施する
@@ -345,8 +362,10 @@ public class Util {
 	public static String editArticle(String[] itemName, String[] targetData) {
 
 		String returnData = "";
+		//結合するデータ数を取得する
 		int count = itemName.length;
 
+		//データ数分ループし文字列を結合する
 		for (int i = 0; i < count - 1; i++) {
 			returnData = returnData + itemName[i] + Const.COLON
 					+ targetData[i] + Const.FULLWIDTH_SPACE + Const.SQUARE;
@@ -403,7 +422,7 @@ public class Util {
 		if(itemName.equals(A_INTG_NUM)) {
 			//data[0]IpOpsSO番号 != null && data[1]ARENASO番号 = nullの場合、IpOpsSO番号に2020付与
 			if(data[0] != null && data[1] == null) {
-				returnData = "2020" + data[0];
+				returnData = ADD_IPOPS + data[0];
 
 			//data[0]IpOpsSO番号 = null && data[1]ARENASO番号 != nullの場合、ARENASO番号上2桁切
 			} else if(data[0] == null && data[1] != null) {
@@ -452,6 +471,16 @@ public class Util {
 			}
 
 		/**
+		 * 注文種類
+		 */
+		} else if(itemName.equals(ORDER_KIND)) {
+			returnData = data[0];
+			//data[0]注文種類が撤去の場合、注文種類を新設に設定
+			if(data[0].equals("120")) {
+				returnData = "100";
+			}
+
+		/**
 		 * サービス種別
 		 */
 		} else if(itemName.equals(SERVICE_KIND)) {
@@ -468,10 +497,10 @@ public class Util {
 		} else if(itemName.equals(BUILD_RESEARCH_DATE)) {
 			Date date1 = java.sql.Date.valueOf(data[0]);
 			Date date2 = java.sql.Date.valueOf(data[1]);
-			//data[0]ビル調査日1がdata[1]ビル調査日2より古い
+			//data[0]ビル調査日1がdata[1]ビル調査日2より古い場合
 			if(date1.before(date2)) {
 				returnData = date1.toString();
-			//data[0]ビル調査日1がdata[1]ビル調査日2より新しい
+			//data[0]ビル調査日1がdata[1]ビル調査日2より新しい場合
 			}else if(date1.after(date2)) {
 				returnData = date2.toString();
 			}
@@ -480,10 +509,10 @@ public class Util {
 		 * 一体化設計対象
 		 */
 		} else if(itemName.equals(INTEGRATED_TARGET)) {
-			//data[0]Rat-exam-sits = 5 && data[1]e-acc-wit = q. の場合、「01:対象」
-			if(data[0] == "5" && data[1] == "q.") {
+			//data[0]Rat-exam-sits = 5 && data[1]e-acc-wit = 9 の場合、「01:対象」
+			if(data[0] == "5" && data[1] == "9") {
 				returnData = "01";
-			//それ以外の場合、「02:対象外とする」
+			//それ以外の場合、「02:対象外」とする
 			}else {
 				returnData = "02";
 			}
