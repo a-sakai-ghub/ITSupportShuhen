@@ -1,15 +1,9 @@
 package common;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -25,10 +19,6 @@ public class Util {
 	 * コードマスタファイル名
 	 */
 	private static final String CODE_MASTER_PATH = "codemaster\\コードマスタ.xlsx";
-	/**
-	 * 記事欄プロパティファイル名
-	 */
-	private static final String PROPERTIES_PATH = "property\\Article.properties";
 	/**
 	 * 流通項目通番セル番号
 	 */
@@ -77,7 +67,6 @@ public class Util {
 	 * サ総工事有無
 	 */
 	private static final String SERVICE_EXISTENCE = "サ総工事有無";
-
 
 
 	/**
@@ -383,33 +372,23 @@ public class Util {
 	 * 記事欄抽出
 	 * article 記事欄
 	 * itemName 項目名
-	 * articleName　記事欄名
 	 * @return returnData 編集後文字列
-	 * @throws IOException
-	 * @throws FileNotFoundException
 	 */
-	public String extractionArticle(String article, String itemName, String articleName) throws FileNotFoundException, IOException {
+	public String extractionArticle(String article, String itemName) {
 
 		String returnData = "";
 
 		//記事欄を項目ごとに区切る
 		String[] articleData = article.split(Const.FULLWIDTH_SPACE + Const.SQUARE, 0);
 
-		//プロパティファイルを読み込む
-		Properties prop = new Properties();
-		prop.load(new FileInputStream(PROPERTIES_PATH));
-
-		//記事欄名からプロパティファイルの情報を取得する。
-		Map<String,String> propMap = getProp(prop, articleName);
-
-		String[] itemList = null;
+		//記事欄の項目数
 		int count = articleData.length;
 
-		//記事欄の項目名とデータを分割し、項目名から何番目の値を取得するか確定する
+		//記事欄の項目数分ループし、itemNameと一致した場合値をreturnDataに入れる
 		for(int i = 0; i < count; i++) {
-			itemList = articleData[i].split(Const.COLON);
-			if(itemName.equals(propMap.get("ITEM" + i))) {
-				returnData = itemList[1];
+			boolean result = articleData[i].startsWith(itemName);
+			if(result) {
+				returnData = articleData[i].substring(itemName.length() + 1);
 				break;
 			}
 		}
@@ -559,53 +538,5 @@ public class Util {
 
 		return returnData;
 	}
-
-	/**
-	 * 修正箇所
-	 * targetData 対象データ
-	 * historyData 履歴情報
-	 * @return returnData 修正箇所
-	 */
-	public String fixLocation(String[] targetData, String[] historyData) {
-
-		String returnData = "";
-
-		for(int i = 0; i < targetData.length; i++) {
-			if(!targetData[i].equals(historyData[i])){
-				if(returnData.equals("")) {
-					returnData = targetData[i];
-				}
-				else {
-					returnData = returnData + "," + targetData[i];
-				}
-			}
-		}
-
-		return returnData;
-	}
-
-
-	/**
-	 * プロパティファイルからキーを指定し、値を取得して情報をMapに格納する。
-	 * @param headerName CSV項目名
-	 * @return プロパティ情報Map
-	 * @throws IOException
-	 */
-	private static Map<String,String> getProp(Properties prop, String articleName) throws IOException {
-
-		//記事欄名(キー)から、プロパティファイルの値を取得する。
-		String propInfo = String.valueOf(prop.get(articleName));
-		String[] propList = propInfo.split(",");
-		int count = propList.length;
-
-		//取得した記事欄項目をMapに格納する
-		Map <String, String> propMap = new HashMap<>();
-		for(int i = 0; i < count; i++) {
-			propMap.put("ITEM" + i, propList[i]);
-		}
-
-		return propMap;
-	}
-
 
 }
