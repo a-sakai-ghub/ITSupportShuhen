@@ -17,6 +17,10 @@ import com.ibm.icu.text.Transliterator;
  */
 public class Util {
 
+	private Util() {
+
+	}
+
 	/**
 	 * 流通項目通番セル番号
 	 */
@@ -72,7 +76,7 @@ public class Util {
 	 * targetData 編集対象文字列
 	 * @return returnData 編集後文字列
 	 */
-	public String removeHyphen(String targetData) {
+	public static String removeHyphen(String targetData) {
 
 		String returnData = "";
 
@@ -87,7 +91,7 @@ public class Util {
 	 * @throws ParseException
 	 * @return returnData 編集後文字列
 	 */
-	public String grantSlash(String targetData) throws ParseException {
+	public static String grantSlash(String targetData) throws ParseException {
 
 		String returnData = "";
 
@@ -104,7 +108,7 @@ public class Util {
 	 * @throws ParseException
 	 * @return returnData 編集後文字列
 	 */
-	public String removeSlash(String targetData) throws ParseException {
+	public static String removeSlash(String targetData) throws ParseException {
 
 		String returnData = "";
 
@@ -121,7 +125,7 @@ public class Util {
 	 * connection 接続文字
 	 * @return returnData 編集後文字列
 	 */
-	public String unionData(String[] targetData, String connection) {
+	public static String unionData(String[] targetData, String connection) {
 
 		String returnData = "";
 		//結合するデータ数を取得する
@@ -141,7 +145,7 @@ public class Util {
 	 * targetData 編集対象文字列
 	 * @return returnData 編集後文字列
 	 */
-	public String changeFullWidth(String targetData) {
+	public static String changeFullWidth(String targetData) {
 
 		String returnData = "";
 
@@ -156,7 +160,7 @@ public class Util {
 	 * targetData 編集対象文字列
 	 * @return returnData 編集後文字列
 	 */
-	public String changeHalfWidth(String targetData) {
+	public static String changeHalfWidth(String targetData) {
 
 		String returnData = "";
 
@@ -173,7 +177,7 @@ public class Util {
 	 * direction 桁切方向（先頭削除　or 末尾削除）
 	 * @return returnData 編集後文字列
 	 */
-	public String cutDigit(String targetData, int digit, String direction) {
+	public static String cutDigit(String targetData, int digit, String direction) {
 
 		String returnData = "";
 		returnData = targetData;
@@ -199,7 +203,7 @@ public class Util {
 	 * eastCode 変換対象コード値
 	 * @return westCode 変換後コード値
 	 */
-	public String changeEastToWestCode(String dataNum, String eastCode, Sheet sheet) {
+	public static String changeEastToWestCode(String dataNum, String eastCode, Sheet sheet) {
 
 		String westCode = "";
 
@@ -234,8 +238,7 @@ public class Util {
 	 * westCode 変換対象コード値
 	 * @return eastCode 変換後コード値
 	 */
-	public String changeWestToEastCode(String dataNum, String westCode, Sheet sheet) {
-
+	public static String changeWestToEastCode(String dataNum, String westCode, Sheet sheet) {
 		String eastCode = "";
 
 		try {
@@ -269,7 +272,7 @@ public class Util {
 	 * westCode 変換対象コード値
 	 * @return japaneseName 変換後文字列
 	 */
-	public String changeCodeToJapanese(String dataNum, String westCode, Sheet sheet) {
+	public static String changeCodeToJapanese(String dataNum, String westCode, Sheet sheet) {
 
 		String japaneseName = "";
 
@@ -304,7 +307,7 @@ public class Util {
 	 * japaneseName 変換対象和名
 	 * @return japaneseName 変換後文字列
 	 */
-	public String changeJapaneseToCode(String dataNum, String japaneseName, Sheet sheet) {
+	public static String changeJapaneseToCode(String dataNum, String japaneseName, Sheet sheet) {
 
 		String westCode = "";
 
@@ -339,7 +342,7 @@ public class Util {
 	 * targetData 結合するデータ配列
 	 * @return returnData 編集後文字列
 	 */
-	public String editArticle(String[] itemName, String[] targetData) {
+	public static String editArticle(String[] itemName, String[] targetData) {
 
 		String returnData = "";
 		int count = itemName.length;
@@ -360,7 +363,7 @@ public class Util {
 	 * itemName 項目名
 	 * @return returnData 編集後文字列
 	 */
-	public String extractionArticle(String article, String itemName) {
+	public static String extractionArticle(String article, String itemName) {
 
 		String returnData = "";
 
@@ -389,7 +392,7 @@ public class Util {
 	 * data 判定するデータ
 	 * @return returnData 判定後項目
 	 */
-	public String judgeData(String itemName, String[] data) {
+	public static String judgeData(String itemName, String[] data) {
 
 		String returnData = "";
 
