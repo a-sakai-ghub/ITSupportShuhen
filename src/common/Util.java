@@ -79,6 +79,7 @@ public class Util {
 	private static final String ADD_IPOPS = "2020";
 
 
+
 	/**
 	 * ハイフンを除去するメソッド
 	 * targetData 編集対象文字列
@@ -210,6 +211,21 @@ public class Util {
 				returnData = targetData.substring(0, digit);
 			}
 		}
+
+		return returnData;
+	}
+
+	/**
+	 * 末尾の半角/全角スペースを削除するメソッド
+	 * targetData 編集対象文字列
+	 * @return returnData 編集後文字列
+	 */
+	public static String trimSpace(String targetData) {
+
+		String returnData = "";
+
+		//半角・全角trimする
+		returnData = targetData.replaceFirst("[\\h]+$", "");
 
 		return returnData;
 	}
