@@ -79,12 +79,18 @@ public class Util {
 	private static final String ADD_IPOPS = "2020";
 
 
+
 	/**
 	 * ハイフンを除去するメソッド
 	 * targetData 編集対象文字列
 	 * @return returnData 編集後文字列
 	 */
 	public static String removeHyphen(String targetData) {
+
+		//編集対象文字列がnullだった場合、空文字を返却する。
+		if(targetData == null) {
+			return "";
+		}
 
 		String returnData = "";
 
@@ -101,6 +107,11 @@ public class Util {
 	 * @return returnData 編集後文字列
 	 */
 	public static String grantSlash(String targetData) throws ParseException {
+
+		//編集対象文字列がnullだった場合、空文字を返却する。
+		if(targetData == null) {
+			return "";
+		}
 
 		String returnData = "";
 
@@ -122,6 +133,11 @@ public class Util {
 	 */
 	public static String removeSlash(String targetData) throws ParseException {
 
+		//編集対象文字列がnullだった場合、空文字を返却する。
+		if(targetData == null) {
+			return "";
+		}
+
 		String returnData = "";
 
 		//変換後の日付データフォーマットを設定する
@@ -141,6 +157,11 @@ public class Util {
 	 * @return returnData 編集後文字列
 	 */
 	public static String unionData(String[] targetData, String connection) {
+
+		//編集対象文字列がnullだった場合、空文字を返却する。
+		if(targetData == null) {
+			return "";
+		}
 
 		String returnData = "";
 		//結合するデータ数を取得する
@@ -163,6 +184,11 @@ public class Util {
 	 */
 	public static String changeFullWidth(String targetData) {
 
+		//編集対象文字列がnullだった場合、空文字を返却する。
+		if(targetData == null) {
+			return "";
+		}
+
 		String returnData = "";
 
 		Transliterator transliterator = Transliterator.getInstance(Const.HALF_FULL);
@@ -177,6 +203,11 @@ public class Util {
 	 * @return returnData 編集後文字列
 	 */
 	public static String changeHalfWidth(String targetData) {
+
+		//編集対象文字列がnullだった場合、空文字を返却する。
+		if(targetData == null) {
+			return "";
+		}
 
 		String returnData = "";
 
@@ -194,6 +225,11 @@ public class Util {
 	 * @return returnData 編集後文字列
 	 */
 	public static String cutDigit(String targetData, int digit, String direction) {
+
+		//編集対象文字列がnullだった場合、空文字を返却する。
+		if(targetData == null) {
+			return "";
+		}
 
 		String returnData = "";
 		returnData = targetData;
@@ -221,6 +257,11 @@ public class Util {
 	 */
 	public static String trimSpace(String targetData) {
 
+		//編集対象文字列がnullだった場合、空文字を返却する。
+		if(targetData == null) {
+			return "";
+		}
+
 		String returnData = "";
 
 		//半角・全角trimする
@@ -236,6 +277,11 @@ public class Util {
 	 */
 	public static String removeSymbol(String targetData) {
 
+		//編集対象文字列がnullだった場合、空文字を返却する。
+		if(targetData == null) {
+			return "";
+		}
+
 		String returnData = "";
 
 		//記号除去する
@@ -248,9 +294,15 @@ public class Util {
 	 * コード変換をするメソッド（東 → 西変換）
 	 * dataNum 流通項目通番
 	 * eastCode 変換対象コード値
+	 * sheet エクセルシート情報
 	 * @return westCode 変換後コード値
 	 */
 	public static String changeEastToWestCode(String dataNum, String eastCode, Sheet sheet) {
+
+		//編集対象文字列がnullだった場合、空文字を返却する。
+		if(eastCode == null) {
+			return "";
+		}
 
 		String westCode = "";
 
@@ -283,9 +335,16 @@ public class Util {
 	 * コード変換をするメソッド（西 → 東変換）
 	 * dataNum 流通項目通番
 	 * westCode 変換対象コード値
+	 * sheet エクセルシート情報
 	 * @return eastCode 変換後コード値
 	 */
 	public static String changeWestToEastCode(String dataNum, String westCode, Sheet sheet) {
+
+		//編集対象文字列がnullだった場合、空文字を返却する。
+		if(westCode == null) {
+			return "";
+		}
+
 		String eastCode = "";
 
 		try {
@@ -317,9 +376,15 @@ public class Util {
 	 * 和名変換をするメソッド（コード → 和名変換）
 	 * dataNum 流通項目通番
 	 * westCode 変換対象コード値
+	 * sheet エクセルシート情報
 	 * @return japaneseName 変換後文字列
 	 */
 	public static String changeCodeToJapanese(String dataNum, String westCode, Sheet sheet) {
+
+		//編集対象文字列がnullだった場合、空文字を返却する。
+		if(westCode == null) {
+			return "";
+		}
 
 		String japaneseName = "";
 
@@ -352,9 +417,15 @@ public class Util {
 	 * 和名変換をするメソッド（和名→コード変換）
 	 * dataNum 流通項目通番
 	 * japaneseName 変換対象和名
+	 * sheet エクセルシート情報
 	 * @return japaneseName 変換後文字列
 	 */
 	public static String changeJapaneseToCode(String dataNum, String japaneseName, Sheet sheet) {
+
+		//編集対象文字列がnullだった場合、空文字を返却する。
+		if(japaneseName == null) {
+			return "";
+		}
 
 		String westCode = "";
 
@@ -391,6 +462,11 @@ public class Util {
 	 */
 	public static String editArticle(String[] itemName, String[] targetData) {
 
+		//編集対象文字列がnullだった場合、空文字を返却する。
+		if(targetData == null) {
+			return "";
+		}
+
 		String returnData = "";
 		//結合するデータ数を取得する
 		int count = itemName.length;
@@ -413,6 +489,11 @@ public class Util {
 	 * @return returnData 編集後文字列
 	 */
 	public static String extractionArticle(String article, String itemName) {
+
+		//編集対象文字列がnullだった場合、空文字を返却する。
+		if(article == null) {
+			return "";
+		}
 
 		String returnData = "";
 
@@ -442,6 +523,11 @@ public class Util {
 	 * @return returnData 判定後項目
 	 */
 	public static String judgeData(String itemName, String[] data) {
+
+		//編集対象文字列がnullだった場合、空文字を返却する。
+		if(data == null) {
+			return "";
+		}
 
 		String returnData = "";
 
