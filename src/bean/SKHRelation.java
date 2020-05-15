@@ -1,5 +1,8 @@
 package bean;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 進捗管理反映ツール　二つのパラメータ紐づけ用クラス
  */
@@ -13,7 +16,7 @@ public class SKHRelation {
 
 	String input2Column;
 
-	String edit;
+	List<String> editList = new ArrayList<>();
 
 	public String getInput1Table() {
 		return input1Table;
@@ -47,12 +50,16 @@ public class SKHRelation {
 		this.input2Column = input2Column;
 	}
 
-	public String getEdit() {
-		return edit;
+	public List<String> getEditList() {
+		return editList;
 	}
 
-	public void setEdit(String edit) {
-		this.edit = edit;
+	public void setEditList(List<String> editList) {
+		this.editList = editList;
+	}
+
+	public void addEditList(String edit) {
+		this.editList.add(edit);
 	}
 
 }
