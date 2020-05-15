@@ -215,6 +215,36 @@ public class Util {
 	}
 
 	/**
+	 * 末尾の半角/全角スペースを削除するメソッド
+	 * targetData 編集対象文字列
+	 * @return returnData 編集後文字列
+	 */
+	public static String trimSpace(String targetData) {
+
+		String returnData = "";
+
+		//半角・全角trimする
+		returnData = targetData.replaceFirst("[\\h]+$", "");
+
+		return returnData;
+	}
+
+	/**
+	 * 記号を除去するメソッド
+	 * targetData 編集対象文字列
+	 * @return returnData 編集後文字列
+	 */
+	public static String removeSymbol(String targetData) {
+
+		String returnData = "";
+
+		//記号除去する
+		returnData = targetData.replaceAll("[\\p{Punct}]","");
+
+		return returnData;
+	}
+
+	/**
 	 * コード変換をするメソッド（東 → 西変換）
 	 * dataNum 流通項目通番
 	 * eastCode 変換対象コード値
