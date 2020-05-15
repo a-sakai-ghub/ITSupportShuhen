@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,23 +32,30 @@ public class SoGaiGyoumuHanei {
 		}
 	};
 
-	public static void main(String args[]) {
+	private static final String EXPECTED_FILE_PATH = "C:\\ITSupport\\test\\"  + new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()) + "_期待値.xlsx";
 
-		// 引数の値をチェック（ツールの区分、INPUT情報１のファイルパス、INPUT情報２のファイルパス）
-		//ツールの区分を読み込み
-		String toolKbn = args[0];
+	private static final String EDIT_INFO_FILE_PATH = "C:\\ITSupport\\test\\EditInfo_SO外.xlsx";
 
-		String input1 = args[1];
-
-		String input2 = args[2];
-
-		expectCalculate(input1, input2);
-	}
+//	public static void main(String args[]) {
+//
+//		// 引数の値をチェック（ツールの区分、INPUT情報１のファイルパス、INPUT情報２のファイルパス）
+//		//ツールの区分を読み込み
+//		String toolKbn = args[0];
+//
+//		String input1 = args[1];
+//
+//		String input2 = args[2];
+//
+//		expectCalculate(input1, input2);
+//	}
 
 	/**
 	 * 期待値算出メソッド。
 	 */
 	public static void expectCalculate(String input1, String input2) {
+
+		System.out.println("input1 = " + input1);
+		System.out.println("input2 = " + input2);
 
 
 		//インプット情報のCSVファイルを保持する
@@ -55,19 +63,15 @@ public class SoGaiGyoumuHanei {
 
 
 		//インプット情報のDBファイル情報を保持する。
-//		Map<String , Map<String, Map<String, String>>>  dbData = new HashMap();
-//		dbData = getDbData();
+		Map<String , Map<String, Map<String, String>>>  dbData = new HashMap();
+		dbData = getDbData(input2);
 
 
 		//編集内容を保持する。
-//		Map<String, Map<String, String>> editData = new HashMap();
-//		editData = getEditData();
+		Map<String, Map<String, String>> editData = new HashMap();
+		editData = getEditData();
 //
-
-		createSheet();
-
-
-
+		createSheet(input1, dbData, editData);
 
 
 	}
@@ -78,12 +82,13 @@ public class SoGaiGyoumuHanei {
 		Map<String, Map<String, String>> rowData = null;
 
 		try {
-			//Csv情報ファイル
-			Workbook  expectedFile = WorkbookFactory.create(new FileInputStream("C:\\ITSupport\\test\\EditInfo_SO外.xlsx"));
+			//編集情報ファイル
+			Workbook  ecitInfoFile = WorkbookFactory.create(new FileInputStream(EDIT_INFO_FILE_PATH));
 
 			Map<String, String> dataList = null;
 
-			Sheet sheet = expectedFile.getSheet("編集定義");
+			Sheet sheet = ecitInfoFile.getSheetAt(0);
+
 			rowData = new HashMap();
 
 
@@ -123,14 +128,19 @@ public class SoGaiGyoumuHanei {
 	}
 
 
-	private static Map<String , Map<String, Map<String, String>>> getDbData() {
+	/**
+	 * inputファイルからDB情報取得
+	 * @param input2
+	 * @return
+	 */
+	private static Map<String , Map<String, Map<String, String>>> getDbData(String input2) {
 
 		Map<String , Map<String, Map<String, String>>> dbData = null;
 
 		try {
 
 			//DB情報ファイル
-			Workbook  dbFile = WorkbookFactory.create(new FileInputStream("C:\\ITSupport\\test\\InputDB.xlsx"));
+			Workbook  dbFile = WorkbookFactory.create(new FileInputStream(input2));
 
 			dbData = new HashMap();
 			Map<String, Map<String, String>> rowData = null;
@@ -163,20 +173,9 @@ public class SoGaiGyoumuHanei {
 						dataList.put(headerValue, dataValue);
 
 					}
-
-//					System.out.println("◆ ◆ dataList = " + dataList);
-
-//					System.out.println("◆columnName = " + columnName);
-
 					rowData.put(columnName, dataList);
 				}
-
-//				System.out.println("◆ ◆ rowData = " + rowData);
-
-
 				dbData.put(sheet.getSheetName(), rowData);
-
-
 			}
 
 		} catch (EncryptedDocumentException e) {
@@ -187,71 +186,74 @@ public class SoGaiGyoumuHanei {
 			e.printStackTrace();
 		}
 
-//		System.out.println("◆◆ dbData = " + dbData);
-
 		return dbData;
 
 	}
 
-	private static void createSheet() {
+	/**
+	 * 期待値シート出力処理
+	 * @param input1Path
+	 * @param dbData
+	 * @param editData
+	 */
+	private static void createSheet(
+			String input1Path
+			, Map<String , Map<String, Map<String, String>>> dbData
+			, Map<String, Map<String, String>> editData) {
 
 		try {
 
 			//DB情報ファイル
-			FileInputStream inputFile = new FileInputStream("C:\\ITSupport\\test\\InputSample.xlsx");
+			FileInputStream inputFile = new FileInputStream(input1Path);
 
-			//出力ファイル
+			//inputファイル
 			Workbook wb = WorkbookFactory.create(inputFile);
 
 			//出力ファイル
 			//期待値ファイルを作成
 //			File expectFile = new File("C:\\ITSupport\\test\\"  + new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()) + "_期待値.xlsx");
 
-			FileOutputStream os = new FileOutputStream("C:\\ITSupport\\test\\"  + new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()) + "_期待値.xlsx");
+			FileOutputStream os = new FileOutputStream(EXPECTED_FILE_PATH);
 //			File os = new File("C:\\ITSupport\\test\\"  + new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()) + "_期待値.xlsx");
 
+			int numberOfSheet = wb.getNumberOfSheets();
 
-			Sheet cloneSheet = wb.cloneSheet(0);
-			wb.setSheetName(wb.getSheetIndex(cloneSheet.getSheetName()), "期待値");
+			for(int sheetIndex = 0 ;  sheetIndex < numberOfSheet; sheetIndex++ ) {
 
-			Map<String, String> dataList = null;
-			Map<String, Map<String, String>> rowData = null;
-			rowData = new HashMap();
+				Sheet cloneSheet = wb.cloneSheet(sheetIndex);
+				wb.setSheetName(wb.getSheetIndex(cloneSheet.getSheetName()), wb.getSheetName(sheetIndex) + "_期待値");
 
-//			System.out.println("◆ aaa = " + cloneSheet.getLastRowNum());
+				Map<String, String> dataList = null;
+				Map<String, Map<String, String>> rowData = null;
+				rowData = new HashMap();
 
-			for(int i = 1; i <= cloneSheet.getLastRowNum(); i++) {
+				for(int i = 1; i <= cloneSheet.getLastRowNum(); i++) {
 
-				String aIntgSoNum = "";
-				Row row = cloneSheet.getRow(i);
-				dataList = new HashMap();
-				Map<String , String> dataMap = new HashMap();
-				Map<String, Map<String, String>> rowNum = new HashMap();
-				String headerValue = "";
-				String dataValue = "";
+					String aIntgSoNum = "";
+					Row row = cloneSheet.getRow(i);
+					dataList = new HashMap();
+					Map<String , String> dataMap = new HashMap();
+					Map<String, Map<String, String>> rowNum = new HashMap();
+					String headerValue = "";
+					String dataValue = "";
 
-				for(int j = 0; j < row.getLastCellNum(); j++) {
+					for(int j = 0; j < row.getLastCellNum(); j++) {
 
-					headerValue = cloneSheet.getRow(0).getCell(j).getStringCellValue();
-					dataValue = cloneSheet.getRow(i).getCell(j).getStringCellValue();
+						headerValue = cloneSheet.getRow(0).getCell(j).getStringCellValue();
+						dataValue = cloneSheet.getRow(i).getCell(j).getStringCellValue();
 
-					if(headerValue.equals("統合SO番号")) {
+						if(headerValue.equals("統合SO番号")) {
 
-						aIntgSoNum = dataValue;
+							aIntgSoNum = dataValue;
+
+						}
+
+						row.getCell(j).setCellValue(editData(dbData, aIntgSoNum, headerValue, dataValue));
 
 					}
-
-
-					//dataList.put(headerValue, dataValue);
-
-					String aaa = editData(aIntgSoNum, headerValue, dataValue);
-
-					row.getCell(j).setCellValue(aaa);
-
 				}
-
-//				System.out.println("◆ rowData = " + rowData);
 			}
+
 			wb.write(os);
 			wb.close();
 
@@ -262,38 +264,38 @@ public class SoGaiGyoumuHanei {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
+		} catch (ParseException e) {
+			e.printStackTrace();
 		}
 
 
 
 	}
 
-	private static String editData(String aIntgSoNum, String headerValue, String dataValue ) {
+	private static String editData(Map<String , Map<String, Map<String, String>>>  dbData, String aIntgSoNum, String headerValue, String dataValue ) throws ParseException {
 
 		String returnData = "";
 
 		//インプット情報のDBファイル情報を保持する。
-		Map<String , Map<String, Map<String, String>>>  dbData = new HashMap();
-		dbData = getDbData();
+//		Map<String , Map<String, Map<String, String>>>  dbData = new HashMap();
+//		dbData = getDbData();
 
 		//編集内容を保持する。
 		Map<String, Map<String, String>> editData = new HashMap();
 
 		editData = getEditData();
 
-		System.out.println("▽----------------▽");
-
-		System.out.println("◆ 統合SO番号 = " + aIntgSoNum);
-		System.out.println("◆ ヘッダー = " + headerValue);
-		System.out.println("◆ 値 = " + dataValue);
+//		System.out.println("▽----------------▽");
+//
+//		System.out.println("◆ 統合SO番号 = " + aIntgSoNum);
+//		System.out.println("◆ ヘッダー = " + headerValue);
+//		System.out.println("◆ 値 = " + dataValue);
 
 		//編集内容からデータ取得元を取得
-		//System.out.println("◆ データ取得元 = " + TABLE_LIST.get(editData.get(headerValue).get("情報元テーブルID")));
-		System.out.println("◆ データ取得元 = " + editData.get(headerValue).get("情報元テーブルID"));
+//		System.out.println("◆ データ取得元 = " + editData.get(headerValue).get("情報元テーブルID"));
 
 
 		//データの取得元テーブル
-//		String tableName = TABLE_LIST.get(editData.get(headerValue).get("情報元テーブルID"));
 		String tableName = editData.get(headerValue).get("情報元テーブルID");
 		List<String> tableNameList = Arrays.asList(tableName.split(",",0));
 
@@ -302,65 +304,71 @@ public class SoGaiGyoumuHanei {
 		List<String> columnIdList = Arrays.asList(columnId.split(",",0));
 
 
-		System.out.println("◆ テーブル = " + tableNameList);
-		System.out.println("◆ カラム = " + columnIdList);
+//		System.out.println("◆ テーブル = " + tableNameList);
+//		System.out.println("◆ カラム = " + columnIdList);
 
 		List<String> dbValue = new ArrayList();
+
 		for(int i=0; i < tableNameList.size(); i++) {
 			//System.out.println("◆DBデータ  = " + dbData.get(TABLE_LIST.get(tableNameList.get(i))).get(aIntgSoNum).get(columnIdList.get(i)));
 			dbValue.add( dbData.get(TABLE_LIST.get(tableNameList.get(i))).get(aIntgSoNum).get(columnIdList.get(i)));
 		}
 
-		System.out.println("◆ dbValue = " + dbValue);
+//		System.out.println("◆ dbValue = " + dbValue);
 
 
 //		String dbValue = dbData.get(tableName).get(aIntgSoNum).get(columnId)
 
-
+//		for(int j = 0; j < dbValue.size(); j++) {
+//
+//			dbValue.get(j);
+//
+//
+//		}
 
 		//項目編集
 		if(!editData.get(headerValue).get("スラッシュ除去").equals("0")){
-			System.out.println("◆ します" + editData.get(headerValue).get("スラッシュ除去"));
+//			System.out.println("◆ します" + editData.get(headerValue).get("スラッシュ除去"));
 
 
-			returnData = Util.removeHyphen(dbValue.get(0));
+			returnData = Util.removeSlash(dbValue.get(0));
 
 		}
 
 		if(!editData.get(headerValue).get("スラッシュ付与").equals("0")){
-			System.out.println("◆ します" + editData.get(headerValue).get("スラッシュ付与"));
+//			System.out.println("◆ します" + editData.get(headerValue).get("スラッシュ付与"));
 			returnData = dbValue.get(0);
 
 		}
 
 		if(!editData.get(headerValue).get("全角変換").equals("0")){
-			System.out.println("◆ します" + editData.get(headerValue).get("全角変換"));
+//			System.out.println("◆ します" + editData.get(headerValue).get("全角変換"));
 			returnData = dbValue.get(0);
 
 		}
 
 		if(!editData.get(headerValue).get("半角変換").equals("0")){
-			System.out.println("◆ します" + editData.get(headerValue).get("半角変換"));
+//			System.out.println("◆ します" + editData.get(headerValue).get("半角変換"));
 			returnData = dbValue.get(0);
 
 		}
 
 		if(!editData.get(headerValue).get("桁切").equals("0")){
-			System.out.println("◆ します" + editData.get(headerValue).get("桁切"));
+//			System.out.println("◆ します" + editData.get(headerValue).get("桁切"));
 			returnData = dbValue.get(0);
 
 		}
 
 
 		if(editData.get(headerValue).get("文字列結合").equals("0")){
-			System.out.println("◆ 文字列結合します" + editData.get(headerValue).get("文字列結合"));
+//			System.out.println("◆ 文字列結合します" + editData.get(headerValue).get("文字列結合"));
 			returnData = dbValue.get(0);
 
 		}
 
 
 
-		System.out.println("△----------------△");
+//		System.out.println("△----------------△");
 
 		return returnData;
 	}
