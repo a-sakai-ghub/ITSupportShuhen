@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
@@ -48,6 +49,8 @@ public class CsvOutputTool {
 
 	private static final String MAPKEY_OTHER_INFO = "OTHER_INFO";
 
+	private static final String COL_A_INTG_SO_NUM = "A_INTG_SO_NUM";
+
 	private static final String A_INTG_SO_NUM = "統合SO番号";
 
 	private static final String SO_NUM = "SO番号";
@@ -83,15 +86,15 @@ public class CsvOutputTool {
 	 */
 	public void expectCalculate(String input1, String input2) {
 
-//		public static void main(String[] args) {
+		//	public static void main(String[] args) {
 
 		/**
 		 * 任意の値を設定
 		 */
 		//DB貼り付け情報（CSV出力用、工事情報(制御)、工事情報(詳細)、工事情報(詳細2)の4シートが記載されたファイル）
-		input1 = "input1\\CSV出力ツール用INPUT1.xlsx";
+//		input1 = "input1\\CSV出力ツール用INPUT1.xlsx";
 		//CSV貼り付け情報（試験結果のCSVの情報の1シート）
-		input2 = "input2\\CSV出力ツール用INPUT2.xlsx";
+//		input2 = "input2\\CSV出力ツール用INPUT2.xlsx";
 		//「期待値ファイル」のパスを指定
 		String outDir = "C:\\Sample\\ExpectValue\\";
 
@@ -101,7 +104,7 @@ public class CsvOutputTool {
 		CellStyle textStyle = wbExpect.createCellStyle();
 		textStyle.setDataFormat(wbExpect.createDataFormat().getFormat("text"));
 		//期待値ファイルにシートを作成
-		Sheet testCsvSheet = wbExpect.createSheet("CSV出力_結果");
+		Sheet testCsvSheet = wbExpect.createSheet("CSV出力");
 		Sheet expectSheet = wbExpect.createSheet("CSV出力_期待値");
 
 		try ( FileOutputStream out = new FileOutputStream(expectFile);
@@ -124,7 +127,7 @@ public class CsvOutputTool {
 			Row expectRow = createRow(expectSheet, 0);
 
 			//Input2の1行目(項目行)を最終行まで取得。
-			for( int colIdx = 0;colIdx <= input2Row.getLastCellNum(); colIdx++ ) {
+			for( int colIdx = 0;colIdx < input2Row.getLastCellNum(); colIdx++ ) {
 
 				Cell input2ItemCell = input2Row.getCell(colIdx);
 				if(input2ItemCell == null ) {
@@ -221,27 +224,37 @@ public class CsvOutputTool {
 		//カラムIDリスト
 		String[] valueList = editProp(propMap, MAPKEY_COL_ID, Const.FULL_POINT);
 		String targetValue = "";
+		Row input1Row = dbSheet.getRow(0);
 
-		//DBシートの1列目から、統合SO番号の数分ループ
-		for( int rowDbIdx = 0; rowDbIdx <= dbSheet.getLastRowNum(); rowDbIdx++ ) {
-
-			//DBシートの1列目の統合SO番号とCSVの統合SO番号が一致しないものは排除
-			if( ! String.valueOf(dbSheet.getRow(rowDbIdx).getCell(0)).equals(soNum) ) {
+		for(int colIdx = 0;colIdx < input1Row.getLastCellNum(); colIdx++) {
+			Cell input1ItemCell = input1Row.getCell(colIdx);
+			if(input1ItemCell == null ) {
+				break;
+			}
+			if( ! String.valueOf(input1ItemCell).equals( COL_A_INTG_SO_NUM ) ){
 				continue;
 			}
-			Map <String, String> dbMap = new HashMap<>();
-			//DBシートの1行目
-			Row idRow = dbSheet.getRow(0);
-			//DBシートの1行目カラムIDの数分ループ
-			for( int colDbIdx = 0;colDbIdx < idRow.getLastCellNum(); colDbIdx++ ) {
 
-				//DBシートの対象の行をMapに格納
-				dbMap.put( String.valueOf(dbSheet.getRow(0).getCell(colDbIdx)),
-						String.valueOf(dbSheet.getRow(rowDbIdx).getCell(colDbIdx)) );
+			//DBシートのA_INTG_SO_NUM列から、統合SO番号の数分ループ
+			for( int rowDbIdx = 0; rowDbIdx <= dbSheet.getLastRowNum(); rowDbIdx++ ) {
+
+				//DBシートのA_INTG_SO_NUM列の統合SO番号とCSVの統合SO番号が一致しないものは排除。
+				if( ! String.valueOf(dbSheet.getRow(rowDbIdx).getCell(colIdx)).equals(soNum) ) {
+					continue;
+				}
+
+				//「A_INTG_SO_NUM」列の統合SO番号とCSVの統合SO番号が一致したら、項目名をキーにレコードをMapに格納。
+				Map <String, String> dbMap = new HashMap<>();
+				for( int colDbIdx = 0; colDbIdx < input1Row.getLastCellNum(); colDbIdx++ ) {
+
+					//DBシートの対象の行をMapに格納
+					dbMap.put( String.valueOf(dbSheet.getRow(0).getCell(colDbIdx)),
+							String.valueOf(dbSheet.getRow(rowDbIdx).getCell(colDbIdx)) );
+				}
+				//DBMapから、カラムIDをキーに期待値を算出
+				targetValue = dbMap.get(valueList[d]);
+				break;
 			}
-			//DBMapから、カラムIDをキーに期待値を算出
-			targetValue = dbMap.get(valueList[d]);
-			break;
 		}
 		return targetValue;
 	}
@@ -370,6 +383,9 @@ public class CsvOutputTool {
 			if( editType.equals(EDIT_TYPE_UMU) ) {
 				expectValue = Util.judgeData(propMap.get(MAPKEY_CSV_ITEM_NAME), editValues);
 			}
+		}
+		if( StringUtils.isEmpty(expectValue) ) {
+			expectValue = "";
 		}
 		return expectValue;
 	}
