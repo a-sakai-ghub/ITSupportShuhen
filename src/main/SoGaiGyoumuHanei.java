@@ -19,48 +19,16 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 
+import common.Const;
 import common.Util;
 
 public class SoGaiGyoumuHanei {
 
-	public static final Map<String, String> TABLE_LIST = new HashMap<String, String>(){
-		{
-			put("CSV_OUTPUT_DATA","CSV出力用");
-			put("JOB_INFO","工事情報(制御)");
-			put("JOB_INFO_DETAIL", "工事情報(詳細)");
-			put("JOB_INFO_DETAIL2", "工事情報(詳細2)");
-		}
-	};
-
-	private static final String EXPECTED_FILE_PATH = "C:\\ITSupport\\test\\"  + new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()) + "_期待値.xlsx";
-
-	private static final String EDIT_INFO_FILE_PATH = "C:\\ITSupport\\test\\EditInfo_SO外.xlsx";
-
-//	public static void main(String args[]) {
-//
-//		// 引数の値をチェック（ツールの区分、INPUT情報１のファイルパス、INPUT情報２のファイルパス）
-//		//ツールの区分を読み込み
-//		String toolKbn = args[0];
-//
-//		String input1 = args[1];
-//
-//		String input2 = args[2];
-//
-//		expectCalculate(input1, input2);
-//	}
 
 	/**
 	 * 期待値算出メソッド。
 	 */
 	public static void expectCalculate(String input1, String input2) {
-
-		System.out.println("input1 = " + input1);
-		System.out.println("input2 = " + input2);
-
-
-		//インプット情報のCSVファイルを保持する
-		//シート List<Map 統合so< ヘッダ, 値>>
-
 
 		//インプット情報のDBファイル情報を保持する。
 		Map<String , Map<String, Map<String, String>>>  dbData = new HashMap();
@@ -70,20 +38,24 @@ public class SoGaiGyoumuHanei {
 		//編集内容を保持する。
 		Map<String, Map<String, String>> editData = new HashMap();
 		editData = getEditData();
-//
+
+		//期待値シート作成
 		createSheet(input1, dbData, editData);
 
 
 	}
 
-
+	/**
+	 * 項目編集情報ファイル取得
+	 * @return
+	 */
 	private static Map<String, Map<String, String>> getEditData(){
 
 		Map<String, Map<String, String>> rowData = null;
 
 		try {
 			//編集情報ファイル
-			Workbook  ecitInfoFile = WorkbookFactory.create(new FileInputStream(EDIT_INFO_FILE_PATH));
+			Workbook  ecitInfoFile = WorkbookFactory.create(new FileInputStream(Const.PROPERTY_FILE_PATH + Const.EDIT_INFO_SO_GAI));
 
 			Map<String, String> dataList = null;
 
@@ -213,7 +185,9 @@ public class SoGaiGyoumuHanei {
 			//期待値ファイルを作成
 //			File expectFile = new File("C:\\ITSupport\\test\\"  + new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()) + "_期待値.xlsx");
 
-			FileOutputStream os = new FileOutputStream(EXPECTED_FILE_PATH);
+			FileOutputStream os = new FileOutputStream(Const.EXPECTED_FILE_PATH + new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()) + "_" +Const. SOGAI_EXPECTED_FILE_NAME);
+//			private static final String EXPECTED_FILE_PATH = "C:\\ITSupport\\test\\"  + new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()) + "_期待値.xlsx";
+
 //			File os = new File("C:\\ITSupport\\test\\"  + new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()) + "_期待値.xlsx");
 
 			int numberOfSheet = wb.getNumberOfSheets();
@@ -242,13 +216,13 @@ public class SoGaiGyoumuHanei {
 						headerValue = cloneSheet.getRow(0).getCell(j).getStringCellValue();
 						dataValue = cloneSheet.getRow(i).getCell(j).getStringCellValue();
 
-						if(headerValue.equals("統合SO番号")) {
+						if(headerValue.equals(Const.A_INTG_SO_NUM_NAME)) {
 
 							aIntgSoNum = dataValue;
 
 						}
 
-						row.getCell(j).setCellValue(editData(dbData, aIntgSoNum, headerValue, dataValue));
+						row.getCell(j).setCellValue(editData(dbData, editData, aIntgSoNum, headerValue, dataValue));
 
 					}
 				}
@@ -272,19 +246,25 @@ public class SoGaiGyoumuHanei {
 
 	}
 
-	private static String editData(Map<String , Map<String, Map<String, String>>>  dbData, String aIntgSoNum, String headerValue, String dataValue ) throws ParseException {
+	/**
+	 * 期待値編集処理
+	 * @param dbData
+	 * @param aIntgSoNum
+	 * @param headerValue
+	 * @param dataValue
+	 * @return
+	 * @throws ParseException
+	 */
+	private static String editData(
+			Map<String , Map<String, Map<String, String>>>  dbData
+			, Map<String, Map<String, String>> editData
+			, String aIntgSoNum, String headerValue
+			, String dataValue )
+					throws ParseException {
 
 		String returnData = "";
 
-		//インプット情報のDBファイル情報を保持する。
-//		Map<String , Map<String, Map<String, String>>>  dbData = new HashMap();
-//		dbData = getDbData();
-
 		//編集内容を保持する。
-		Map<String, Map<String, String>> editData = new HashMap();
-
-		editData = getEditData();
-
 //		System.out.println("▽----------------▽");
 //
 //		System.out.println("◆ 統合SO番号 = " + aIntgSoNum);
@@ -311,7 +291,7 @@ public class SoGaiGyoumuHanei {
 
 		for(int i=0; i < tableNameList.size(); i++) {
 			//System.out.println("◆DBデータ  = " + dbData.get(TABLE_LIST.get(tableNameList.get(i))).get(aIntgSoNum).get(columnIdList.get(i)));
-			dbValue.add( dbData.get(TABLE_LIST.get(tableNameList.get(i))).get(aIntgSoNum).get(columnIdList.get(i)));
+			dbValue.add( dbData.get(Const.TABLE_LIST.get(tableNameList.get(i))).get(aIntgSoNum).get(columnIdList.get(i)));
 		}
 
 //		System.out.println("◆ dbValue = " + dbValue);

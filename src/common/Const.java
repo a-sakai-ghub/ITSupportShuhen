@@ -1,5 +1,8 @@
 package common;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class Const {
 
 
@@ -51,8 +54,37 @@ public class Const {
 	/* 全角「・」 */
 	public static final String FULL_POINT = "・";
 
+	/* プロパティファイル */
+	public static final String PROPERTY_FILE_PATH = "property/";
+
+	/* コードマスタファイルパス */
+	public static final String CODE_MASTER_FILE_PATH = "codemaster/";
+
+	/* コードマスタファイル名 */
+	public static final String CODE_MASTER_FILE_NAME = "コードマスタ.xlsx";
+
+	/* 期待値ファイル出力先 */
+	public static final String EXPECTED_FILE_PATH = "output/";
+
 	/* SO外業務反映ツール：期待値ファイル */
-	public static final String SOGAI_EXPECTED_FILE = "SO外業務期待値ファイル.xlsx";
+	public static final String SOGAI_EXPECTED_FILE_NAME = "SO外業務期待値ファイル.xlsx";
+
+	/* SO外業務反映ツール：編集情報ファイル */
+	public static final String EDIT_INFO_SO_GAI = "EditInfo_SoGai.xlsx";
+
+	/* テーブルリスト */
+	public static final Map<String, String> TABLE_LIST = new HashMap<String, String>(){
+		{
+			put("CSV_OUTPUT_DATA","CSV出力用");
+			put("JOB_INFO","工事情報(制御)");
+			put("JOB_INFO_DETAIL", "工事情報(詳細)");
+			put("JOB_INFO_DETAIL2", "工事情報(詳細2)");
+		}
+	};
+
+
+	/* 統合SO番号 ：項目名 */
+	public static final String A_INTG_SO_NUM_NAME = "統合SO番号";
 
 
 
