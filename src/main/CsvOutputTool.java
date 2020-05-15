@@ -87,14 +87,15 @@ public class CsvOutputTool {
 	public void expectCalculate(String input1, String input2) {
 
 		//	public static void main(String[] args) {
+		print("・・・・・・・・・・・・・・・・・・・・・・・・・・・・CsvOutputTool.java処理開始・・・・・・・・・・・・・・・・・・・・・・・・・・・・");
 
 		/**
 		 * 任意の値を設定
 		 */
 		//DB貼り付け情報（CSV出力用、工事情報(制御)、工事情報(詳細)、工事情報(詳細2)の4シートが記載されたファイル）
-//		input1 = "input1\\CSV出力ツール用INPUT1.xlsx";
+		//		String input1 = "input1\\CSV出力ツール用INPUT1.xlsx";
 		//CSV貼り付け情報（試験結果のCSVの情報の1シート）
-//		input2 = "input2\\CSV出力ツール用INPUT2.xlsx";
+		//		String input2 = "input2\\CSV出力ツール用INPUT2.xlsx";
 		//「期待値ファイル」のパスを指定
 		String outDir = "C:\\Sample\\ExpectValue\\";
 
@@ -126,28 +127,21 @@ public class CsvOutputTool {
 			Row input2Row = input2Sheet.getRow(0);
 			Row expectRow = createRow(expectSheet, 0);
 
-			//Input2の1行目(項目行)を最終行まで取得。
+			//Input2の1行目(CSV項目名)を最終列までループ
 			for( int colIdx = 0;colIdx < input2Row.getLastCellNum(); colIdx++ ) {
 
-				Cell input2ItemCell = input2Row.getCell(colIdx);
-				if(input2ItemCell == null ) {
-					break;
-				}
+				String headerName = String.valueOf(input2Row.getCell(colIdx));
 
 				//項目名リストに項目名を追加。
-				headerList.add(String.valueOf(input2ItemCell));
+				headerList.add(headerName);
 				//項目名を期待値シートに出力する。
-				setCell(expectRow, colIdx, textStyle, input2ItemCell.getStringCellValue());
+				setCell(expectRow, colIdx, textStyle, headerName);
 
 				// 1行目の項目名から「統合SO番号」列の位置を特定し、統合SO番号を最終行まで取得しリストに格納。
-				if( String.valueOf(input2ItemCell).equals( A_INTG_SO_NUM ) || String.valueOf(input2ItemCell).equals( SO_NUM )){
+				if( headerName.equals( A_INTG_SO_NUM ) || headerName.equals( SO_NUM )){
 					for(int rowIdx = 1; rowIdx <= input2Sheet.getLastRowNum(); rowIdx++ ) {
 
-						Cell tougouSoCell = (input2Sheet.getRow(rowIdx).getCell(colIdx));
-						if(tougouSoCell == null) {
-							break;
-						}
-						soList.add(String.valueOf(tougouSoCell));
+						soList.add(String.valueOf(input2Sheet.getRow(rowIdx).getCell(colIdx)));
 					}
 				}
 			}
@@ -162,17 +156,13 @@ public class CsvOutputTool {
 				//統合SO番号を取得
 				String targetSoNo = soList.get(i);
 				expectRow = createRow(expectSheet, i + 1);
-				print("");
-				print("統合SO番号：" + targetSoNo);
+				print("\n統合SO番号：" + targetSoNo);
 
 				//試験結果CSV情報から取得した、CSV項目名リストの項目ごとにループ
 				for( int h = 0 ; h < headerList.size();h++ ) {
 
-					//CSV項目名を取得
-					String headerName = headerList.get(h);
-
 					//CSV項目名からプロパティファイルの情報を取得する。
-					Map<String,String> propMap = getProp(prop, headerName);
+					Map<String,String> propMap = getProp(prop, headerList.get(h));
 
 					//プロパティファイルより、テーブル名を取得する
 					String[] dbList = editProp(propMap, MAPKEY_TABLE_NAME, Const.FULL_POINT);
@@ -189,11 +179,11 @@ public class CsvOutputTool {
 					}
 
 					//DBシートから取得したデータおよびプロパティファイル情報から、期待値を算出する。
-					String expectValue = editValue( targetValues, propMap,codeMSheet );
+					String expectValue = editValue( targetValues, propMap, codeMSheet );
 
 					//期待値シートに期待値を出力する。
 					setCell(expectRow, h ,textStyle, expectValue);
-					print("項目名 " + propMap.get(MAPKEY_CSV_ITEM_NAME) + "● 期待値 " + expectValue);
+					print("項目名 " + propMap.get(MAPKEY_CSV_ITEM_NAME) + " ● 期待値 " + expectValue);
 				}
 			}
 
@@ -201,11 +191,11 @@ public class CsvOutputTool {
 			wbExpect.write(out);
 			out.close();
 			wbExpect.close();
-			print("処理終了");
+			print("\n・・・・・・・・・・・・・・・・・・・・・・・・・・・・CsvOutputTool.java処理終了・・・・・・・・・・・・・・・・・・・・・・・・・・・・");
 		} catch (Exception e) {
 			e.printStackTrace();
 			if(expectFile.exists()) {
-				print("削除して処理終了");
+				print("！削除して処理終了！");
 				expectFile.delete();
 			}
 		}
@@ -227,11 +217,9 @@ public class CsvOutputTool {
 		Row input1Row = dbSheet.getRow(0);
 
 		for(int colIdx = 0;colIdx < input1Row.getLastCellNum(); colIdx++) {
-			Cell input1ItemCell = input1Row.getCell(colIdx);
-			if(input1ItemCell == null ) {
-				break;
-			}
-			if( ! String.valueOf(input1ItemCell).equals( COL_A_INTG_SO_NUM ) ){
+			String dbColName = String.valueOf(input1Row.getCell(colIdx));
+
+			if( ! dbColName.equals( COL_A_INTG_SO_NUM ) ){
 				continue;
 			}
 
