@@ -510,7 +510,7 @@ public class Util {
 		 */
 		} else if(itemName.equals(INTEGRATED_TARGET)) {
 			//data[0]Rat-exam-sits = 5 && data[1]e-acc-wit = 9 の場合、「01:対象」
-			if(data[0] == "5" && data[1] == "9") {
+			if(data[0].equals("5") && data[1].equals("9")) {
 				returnData = "01";
 			//それ以外の場合、「02:対象外」とする
 			}else {
@@ -522,7 +522,7 @@ public class Util {
 		 */
 		} else if(itemName.equals(OUTSIDE_EXISTENCE)) {
 			//data[0]G-elf-req-flag = 1 && data[1]g-rd-cop-req-flg = 1 の場合、「1」
-			if(data[0] == "1" && data[1] == "1") {
+			if(data[0].equals("1") && data[1].equals("1")) {
 				returnData = "1";
 			//それ以外の場合、「0」
 			}else {
@@ -534,7 +534,7 @@ public class Util {
 		 */
 		} else if(itemName.equals(INTEGRATED_EXISTENCE)) {
 			//data[0]Rmt-exam-sts = 5 && data[1].e-acc-wit = 1 の場合、「1」
-			if(data[0] == "5" && data[1] == "1") {
+			if(data[0].equals("5") && data[1].equals("1")) {
 				returnData = "1";
 			//それ以外の場合、「0」
 			}else {
@@ -546,7 +546,7 @@ public class Util {
 		 */
 		} else if(itemName.equals(SERVICE_EXISTENCE)) {
 			//data[0]Rmt-exam-sts != 5 && data[1].e-acc-wit = 1 の場合、「1」
-			if(data[0] == "5" && data[1] == "1") {
+			if(data[0].equals("5") && data[1].equals("1")) {
 				returnData = "1";
 			//それ以外の場合、「0」
 			}else {
