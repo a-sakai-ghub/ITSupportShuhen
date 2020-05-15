@@ -79,7 +79,6 @@ public class Util {
 	private static final String ADD_IPOPS = "2020";
 
 
-
 	/**
 	 * ハイフンを除去するメソッド
 	 * targetData 編集対象文字列
@@ -226,6 +225,21 @@ public class Util {
 
 		//半角・全角trimする
 		returnData = targetData.replaceFirst("[\\h]+$", "");
+
+		return returnData;
+	}
+
+	/**
+	 * 記号を除去するメソッド
+	 * targetData 編集対象文字列
+	 * @return returnData 編集後文字列
+	 */
+	public static String removeSymbol(String targetData) {
+
+		String returnData = "";
+
+		//記号除去する
+		returnData = targetData.replaceAll("[\\p{Punct}]","");
 
 		return returnData;
 	}
