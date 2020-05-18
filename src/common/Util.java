@@ -2,7 +2,6 @@ package common;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -53,10 +52,6 @@ public class Util {
 	 * サービス種別
 	 */
 	private static final String SERVICE_KIND = "サービス種別";
-	/**
-	 * 現場調査予定日
-	 */
-	private static final String BUILD_RESEARCH_DATE = "現場調査予定日";
 	/**
 	 * 一体化設計対象
 	 */
@@ -604,21 +599,6 @@ public class Util {
 			//data[0]サービス種別が102Qまたは102Sの場合、サービス種別を102Rに設定
 			if(data[0].equals("102Q") || data[0].equals("102S")) {
 				returnData = "102R";
-			}
-
-		/**
-		 * 現場調査予定日
-		 * ビル調査日1とビル調査日2で古いほうを登録する
-		 */
-		} else if(itemName.equals(BUILD_RESEARCH_DATE)) {
-			Date date1 = java.sql.Date.valueOf(data[0]);
-			Date date2 = java.sql.Date.valueOf(data[1]);
-			//data[0]ビル調査日1がdata[1]ビル調査日2より古い場合
-			if(date1.before(date2)) {
-				returnData = date1.toString();
-			//data[0]ビル調査日1がdata[1]ビル調査日2より新しい場合
-			}else if(date1.after(date2)) {
-				returnData = date2.toString();
 			}
 
 		/**
