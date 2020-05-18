@@ -1,5 +1,6 @@
 package main;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -20,7 +21,6 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 
 import common.Const;
-import common.Util;
 
 public class SoGaiGyoumuHanei {
 
@@ -31,8 +31,11 @@ public class SoGaiGyoumuHanei {
 	public static void expectCalculate(String input1, String input2) {
 
 		//インプット情報のDBファイル情報を保持する。
-		Map<String , Map<String, Map<String, String>>>  dbData = new HashMap();
-		dbData = getDbData(input2);
+//		Map<String , Map<String, Map<String, String>>>  dbData = new HashMap();
+//		dbData = getDbData(input2);
+		//インプット情報1 CSVファイル情報を保持する。
+		Map<String, Map<String, String>>  csvData = new HashMap();
+		csvData = getCsvData(input1);
 
 
 		//編集内容を保持する。
@@ -40,7 +43,7 @@ public class SoGaiGyoumuHanei {
 		editData = getEditData();
 
 		//期待値シート作成
-		createSheet(input1, dbData, editData);
+		createSheet(input2, csvData, editData);
 
 
 	}
@@ -138,7 +141,7 @@ public class SoGaiGyoumuHanei {
 						headerValue = sheet.getRow(0).getCell(j).getStringCellValue();
 						dataValue = sheet.getRow(i).getCell(j).getStringCellValue();
 
-						if(headerValue.equals("A_INTG_SO_NUM")) {
+						if(headerValue.equals(Const.A_INTG_SO_NUM_NAME)) {
 
 							columnName = dataValue;
 						}
@@ -163,32 +166,89 @@ public class SoGaiGyoumuHanei {
 	}
 
 	/**
+	 * inputファイルから取込CSV情報取得
+	 * @param input2
+	 * @return
+	 */
+	private static Map<String, Map<String, String>> getCsvData(String input1) {
+
+		Map<String, Map<String, String>> csvData = null;
+		Map<String, String> dataList = null;
+
+		try {
+
+			//DB情報ファイル
+			Workbook  csvFile = WorkbookFactory.create(new FileInputStream(input1));
+
+			csvData = new HashMap();
+
+			//シートでループ
+			Sheet sheet = csvFile.getSheetAt(0);
+
+			//ヘッダ行を飛ばしてループ
+			for(int i = 1; i <= sheet.getLastRowNum(); i++){
+
+				String columnName = "";
+				dataList = new HashMap();
+				Map<String , String> dataMap = new HashMap();
+				Map<String, Map<String, String>> rowNum = new HashMap();
+				String headerValue = "";
+				String dataValue = "";
+
+				for(int j = 0; j < sheet.getRow(i).getLastCellNum(); j++) {
+
+					headerValue = sheet.getRow(0).getCell(j).getStringCellValue();
+					dataValue = sheet.getRow(i).getCell(j).getStringCellValue();
+
+					if(headerValue.equals(Const.A_INTG_SO_NUM_NAME)) {
+
+						columnName = dataValue;
+					}
+					dataList.put(headerValue, dataValue);
+
+				}
+				csvData.put(columnName, dataList);
+			}
+
+		} catch (EncryptedDocumentException e) {
+			e.printStackTrace();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return csvData;
+
+	}
+
+	/**
 	 * 期待値シート出力処理
 	 * @param input1Path
 	 * @param dbData
 	 * @param editData
 	 */
 	private static void createSheet(
-			String input1Path
-			, Map<String , Map<String, Map<String, String>>> dbData
+			String input2
+			, Map<String, Map<String, String>> csvData
 			, Map<String, Map<String, String>> editData) {
+
+		Workbook wb = null;
+ 		File outputFile = null;
 
 		try {
 
 			//DB情報ファイル
-			FileInputStream inputFile = new FileInputStream(input1Path);
+			FileInputStream inputFile = new FileInputStream(input2);
 
 			//inputファイル
-			Workbook wb = WorkbookFactory.create(inputFile);
+			wb = WorkbookFactory.create(inputFile);
 
 			//出力ファイル
+			outputFile = new File(Const.EXPECTED_FILE_PATH + new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()) + "_" +Const. SOGAI_EXPECTED_FILE_NAME);
+
 			//期待値ファイルを作成
-//			File expectFile = new File("C:\\ITSupport\\test\\"  + new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()) + "_期待値.xlsx");
-
-			FileOutputStream os = new FileOutputStream(Const.EXPECTED_FILE_PATH + new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()) + "_" +Const. SOGAI_EXPECTED_FILE_NAME);
-//			private static final String EXPECTED_FILE_PATH = "C:\\ITSupport\\test\\"  + new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()) + "_期待値.xlsx";
-
-//			File os = new File("C:\\ITSupport\\test\\"  + new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()) + "_期待値.xlsx");
+			FileOutputStream os = new FileOutputStream(outputFile);
 
 			int numberOfSheet = wb.getNumberOfSheets();
 
@@ -211,19 +271,30 @@ public class SoGaiGyoumuHanei {
 					String headerValue = "";
 					String dataValue = "";
 
+					for(int x = 0; x < row.getLastCellNum(); x++) {
+
+						if(cloneSheet.getRow(0).getCell(x).getStringCellValue().equals(Const.A_INTG_SO_NUM_NAME)) {
+							aIntgSoNum = cloneSheet.getRow(i).getCell(x).getStringCellValue();
+						}
+
+					}
+
 					for(int j = 0; j < row.getLastCellNum(); j++) {
 
 						headerValue = cloneSheet.getRow(0).getCell(j).getStringCellValue();
-						dataValue = cloneSheet.getRow(i).getCell(j).getStringCellValue();
 
-						if(headerValue.equals(Const.A_INTG_SO_NUM_NAME)) {
-
-							aIntgSoNum = dataValue;
-
+						if(cloneSheet.getRow(i).getCell(j) != null ) {
+							dataValue = cloneSheet.getRow(i).getCell(j).getStringCellValue();
 						}
 
-						row.getCell(j).setCellValue(editData(dbData, editData, aIntgSoNum, headerValue, dataValue));
+						if( editData.get(headerValue) == null) {
+//							row.getCell(j).setCellValue("");
+//							row.getCell(j)
+							continue;
 
+						} else {
+							row.getCell(j).setCellValue(editData(csvData, editData, aIntgSoNum, headerValue, dataValue));
+						}
 					}
 				}
 			}
@@ -231,18 +302,12 @@ public class SoGaiGyoumuHanei {
 			wb.write(os);
 			wb.close();
 
-
-		} catch (EncryptedDocumentException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (ParseException e) {
-			e.printStackTrace();
+			if(outputFile.exists()) {
+				outputFile.delete();
+			}
 		}
-
-
 
 	}
 
@@ -256,7 +321,7 @@ public class SoGaiGyoumuHanei {
 	 * @throws ParseException
 	 */
 	private static String editData(
-			Map<String , Map<String, Map<String, String>>>  dbData
+			Map<String, Map<String, String>>  csvData
 			, Map<String, Map<String, String>> editData
 			, String aIntgSoNum, String headerValue
 			, String dataValue )
@@ -280,21 +345,23 @@ public class SoGaiGyoumuHanei {
 		List<String> tableNameList = Arrays.asList(tableName.split(",",0));
 
 		//データの取得元カラム
-		String columnId = editData.get(headerValue).get("項目ID");
+		String columnId = editData.get(headerValue).get("項目名");
 		List<String> columnIdList = Arrays.asList(columnId.split(",",0));
 
 
-//		System.out.println("◆ テーブル = " + tableNameList);
-//		System.out.println("◆ カラム = " + columnIdList);
 
 		List<String> dbValue = new ArrayList();
 
 		for(int i=0; i < tableNameList.size(); i++) {
-			//System.out.println("◆DBデータ  = " + dbData.get(TABLE_LIST.get(tableNameList.get(i))).get(aIntgSoNum).get(columnIdList.get(i)));
-			dbValue.add( dbData.get(Const.TABLE_LIST.get(tableNameList.get(i))).get(aIntgSoNum).get(columnIdList.get(i)));
+			if(  csvData.get(aIntgSoNum).get(columnIdList.get(i)) == null) {
+				dbValue.add("");
+			} else {
+				dbValue.add(csvData.get(aIntgSoNum).get(columnIdList.get(i)));
+			}
 		}
 
-//		System.out.println("◆ dbValue = " + dbValue);
+
+		returnData = dbValue.get(0);
 
 
 //		String dbValue = dbData.get(tableName).get(aIntgSoNum).get(columnId)
@@ -306,45 +373,45 @@ public class SoGaiGyoumuHanei {
 //
 //		}
 
-		//項目編集
-		if(!editData.get(headerValue).get("スラッシュ除去").equals("0")){
-//			System.out.println("◆ します" + editData.get(headerValue).get("スラッシュ除去"));
-
-
-			returnData = Util.removeSlash(dbValue.get(0));
-
-		}
-
-		if(!editData.get(headerValue).get("スラッシュ付与").equals("0")){
-//			System.out.println("◆ します" + editData.get(headerValue).get("スラッシュ付与"));
-			returnData = dbValue.get(0);
-
-		}
-
-		if(!editData.get(headerValue).get("全角変換").equals("0")){
-//			System.out.println("◆ します" + editData.get(headerValue).get("全角変換"));
-			returnData = dbValue.get(0);
-
-		}
-
-		if(!editData.get(headerValue).get("半角変換").equals("0")){
-//			System.out.println("◆ します" + editData.get(headerValue).get("半角変換"));
-			returnData = dbValue.get(0);
-
-		}
-
-		if(!editData.get(headerValue).get("桁切").equals("0")){
-//			System.out.println("◆ します" + editData.get(headerValue).get("桁切"));
-			returnData = dbValue.get(0);
-
-		}
-
-
-		if(editData.get(headerValue).get("文字列結合").equals("0")){
-//			System.out.println("◆ 文字列結合します" + editData.get(headerValue).get("文字列結合"));
-			returnData = dbValue.get(0);
-
-		}
+//		//項目編集
+//		if(!editData.get(headerValue).get("スラッシュ除去").equals("0")){
+////			System.out.println("◆ します" + editData.get(headerValue).get("スラッシュ除去"));
+//
+//
+//			returnData = Util.removeSlash(dbValue.get(0));
+//
+//		}
+//
+//		if(!editData.get(headerValue).get("スラッシュ付与").equals("0")){
+////			System.out.println("◆ します" + editData.get(headerValue).get("スラッシュ付与"));
+//			returnData = dbValue.get(0);
+//
+//		}
+//
+//		if(!editData.get(headerValue).get("全角変換").equals("0")){
+////			System.out.println("◆ します" + editData.get(headerValue).get("全角変換"));
+//			returnData = dbValue.get(0);
+//
+//		}
+//
+//		if(!editData.get(headerValue).get("半角変換").equals("0")){
+////			System.out.println("◆ します" + editData.get(headerValue).get("半角変換"));
+//			returnData = dbValue.get(0);
+//
+//		}
+//
+//		if(!editData.get(headerValue).get("桁切").equals("0")){
+////			System.out.println("◆ します" + editData.get(headerValue).get("桁切"));
+//			returnData = dbValue.get(0);
+//
+//		}
+//
+//
+//		if(!editData.get(headerValue).get("文字列結合").equals("0")){
+////			System.out.println("◆ 文字列結合します" + editData.get(headerValue).get("文字列結合"));
+//			returnData = dbValue.get(0);
+//
+//		}
 
 
 
