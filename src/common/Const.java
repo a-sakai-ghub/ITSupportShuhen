@@ -57,6 +57,9 @@ public class Const {
 	/* プロパティファイル */
 	public static final String PROPERTY_FILE_PATH = "property/";
 
+	/* CSV出力ツール、2次回答返却ツール：プロパティファイル名 */
+	public static final String CSV_PROPERTY_FILE_NAME = "CSVOutput.properties";
+
 	/* コードマスタファイルパス */
 	public static final String CODE_MASTER_FILE_PATH = "codemaster/";
 
@@ -65,6 +68,9 @@ public class Const {
 
 	/* 期待値ファイル出力先 */
 	public static final String EXPECTED_FILE_PATH = "output/";
+
+	/* CSV出力ツール、2次回答返却ツール：期待値ファイル */
+	public static final String CSV_NIJIKAITOU_EXPECTED_FILE_NAME = "CSV出力・2次回答期待値ファイル.xlsx";
 
 	/* SO外業務反映ツール：期待値ファイル */
 	public static final String SOGAI_EXPECTED_FILE_NAME = "SO外業務期待値ファイル.xlsx";
