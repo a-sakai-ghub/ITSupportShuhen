@@ -3,6 +3,7 @@ package common;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -83,7 +84,7 @@ public class Util {
 	public static String removeHyphen(String targetData) {
 
 		//編集対象文字列がnullだった場合、空文字を返却する。
-		if(targetData == null) {
+		if(StringUtils.isEmpty(targetData)) {
 			return "";
 		}
 
@@ -104,7 +105,7 @@ public class Util {
 	public static String grantSlash(String targetData) throws ParseException {
 
 		//編集対象文字列がnullだった場合、空文字を返却する。
-		if(targetData == null) {
+		if(StringUtils.isEmpty(targetData)) {
 			return "";
 		}
 
@@ -129,7 +130,7 @@ public class Util {
 	public static String removeSlash(String targetData) throws ParseException {
 
 		//編集対象文字列がnullだった場合、空文字を返却する。
-		if(targetData == null) {
+		if(StringUtils.isEmpty(targetData)) {
 			return "";
 		}
 
@@ -154,7 +155,7 @@ public class Util {
 	public static String unionData(String[] targetData, String connection) {
 
 		//編集対象文字列がnullだった場合、空文字を返却する。
-		if(targetData == null) {
+		if(StringUtils.isAllEmpty(targetData)) {
 			return "";
 		}
 
@@ -180,7 +181,7 @@ public class Util {
 	public static String changeFullWidth(String targetData) {
 
 		//編集対象文字列がnullだった場合、空文字を返却する。
-		if(targetData == null) {
+		if(StringUtils.isEmpty(targetData)) {
 			return "";
 		}
 
@@ -200,7 +201,7 @@ public class Util {
 	public static String changeHalfWidth(String targetData) {
 
 		//編集対象文字列がnullだった場合、空文字を返却する。
-		if(targetData == null) {
+		if(StringUtils.isEmpty(targetData)) {
 			return "";
 		}
 
@@ -222,7 +223,7 @@ public class Util {
 	public static String cutDigit(String targetData, int digit, String direction) {
 
 		//編集対象文字列がnullだった場合、空文字を返却する。
-		if(targetData == null) {
+		if(StringUtils.isEmpty(targetData)) {
 			return "";
 		}
 
@@ -253,7 +254,7 @@ public class Util {
 	public static String trimSpace(String targetData) {
 
 		//編集対象文字列がnullだった場合、空文字を返却する。
-		if(targetData == null) {
+		if(StringUtils.isEmpty(targetData)) {
 			return "";
 		}
 
@@ -273,7 +274,7 @@ public class Util {
 	public static String removeSymbol(String targetData) {
 
 		//編集対象文字列がnullだった場合、空文字を返却する。
-		if(targetData == null) {
+		if(StringUtils.isEmpty(targetData)) {
 			return "";
 		}
 
@@ -295,7 +296,7 @@ public class Util {
 	public static String changeEastToWestCode(String dataNum, String eastCode, Sheet sheet) {
 
 		//編集対象文字列がnullだった場合、空文字を返却する。
-		if(eastCode == null) {
+		if(StringUtils.isEmpty(eastCode)) {
 			return "";
 		}
 
@@ -336,7 +337,7 @@ public class Util {
 	public static String changeWestToEastCode(String dataNum, String westCode, Sheet sheet) {
 
 		//編集対象文字列がnullだった場合、空文字を返却する。
-		if(westCode == null) {
+		if(StringUtils.isEmpty(westCode)) {
 			return "";
 		}
 
@@ -377,7 +378,7 @@ public class Util {
 	public static String changeCodeToJapanese(String dataNum, String westCode, Sheet sheet) {
 
 		//編集対象文字列がnullだった場合、空文字を返却する。
-		if(westCode == null) {
+		if(StringUtils.isEmpty(westCode)) {
 			return "";
 		}
 
@@ -418,7 +419,7 @@ public class Util {
 	public static String changeJapaneseToCode(String dataNum, String japaneseName, Sheet sheet) {
 
 		//編集対象文字列がnullだった場合、空文字を返却する。
-		if(japaneseName == null) {
+		if(StringUtils.isEmpty(japaneseName)) {
 			return "";
 		}
 
@@ -458,7 +459,7 @@ public class Util {
 	public static String editArticle(String[] itemName, String[] targetData) {
 
 		//編集対象文字列がnullだった場合、空文字を返却する。
-		if(targetData == null) {
+		if(StringUtils.isAllEmpty(targetData)) {
 			return "";
 		}
 
@@ -486,7 +487,7 @@ public class Util {
 	public static String extractionArticle(String article, String itemName) {
 
 		//編集対象文字列がnullだった場合、空文字を返却する。
-		if(article == null) {
+		if(StringUtils.isEmpty(article)) {
 			return "";
 		}
 
@@ -520,7 +521,7 @@ public class Util {
 	public static String judgeData(String itemName, String[] data) {
 
 		//編集対象文字列がnullだった場合、空文字を返却する。
-		if(data == null) {
+		if(StringUtils.isAllEmpty(data)) {
 			return "";
 		}
 
